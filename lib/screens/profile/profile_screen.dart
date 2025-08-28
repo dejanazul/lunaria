@@ -3,15 +3,15 @@ import '../../components/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
 
-class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<CommunityScreen> createState() => _CommunityScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen> {
-  int _currentIndex = 3;
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Community',
+          'Profile',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
@@ -38,10 +38,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.people_outline, size: 80, color: Colors.white),
+              Icon(Icons.person_outline, size: 80, color: Colors.white),
               SizedBox(height: 20),
               Text(
-                'Community Screen',
+                'Profile Screen',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 28,
@@ -51,7 +51,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
               SizedBox(height: 10),
               Text(
-                'Connect with other pet owners\nand share experiences',
+                'Manage your account\nand pet preferences',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 16,

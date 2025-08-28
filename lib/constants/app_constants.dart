@@ -3,6 +3,7 @@
 ///
 /// Usage:
 /// import 'package:lunaria/constants/app_constants.dart';
+library;
 
 // Export all constant files
 export 'app_colors.dart';

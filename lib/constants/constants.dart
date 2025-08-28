@@ -1,5 +1,6 @@
 /// App Constants
 /// Contains all constant values used throughout the app
+library;
 import 'package:flutter/material.dart';
 
 class AppConstants {

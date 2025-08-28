@@ -1,5 +1,6 @@
 /// App Text Styles Constants
 /// Based on Figma Typography System
+library;
 import 'package:flutter/material.dart';
 import 'colors.dart';
 

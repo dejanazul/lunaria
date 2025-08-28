@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lunaria/authentication/login.dart';
+import 'routes/routes.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,8 +10,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: LoginScreen(),
+    final routerConfig = AppRouter.getRouterConfig();
+
+    return MaterialApp(
+      title: 'Lunaria',
+      navigatorKey: routerConfig['navigatorKey'],
+      onGenerateRoute: routerConfig['onGenerateRoute'],
+      initialRoute: routerConfig['initialRoute'],
       debugShowCheckedModeBanner: false,
     );
   }

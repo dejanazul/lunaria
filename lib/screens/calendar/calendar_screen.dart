@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../components/bottom_nav.dart';
+import '../../routes/routes.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({Key? key}) : super(key: key);
+  const CalendarScreen({super.key});
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -64,9 +65,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          NavigationService.navigateToBottomNavScreen(
+            context,
+            index,
+            _currentIndex,
+          );
         },
       ),
     );

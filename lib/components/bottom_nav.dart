@@ -5,8 +5,7 @@ class BottomNav extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const BottomNav({Key? key, required this.currentIndex, required this.onTap})
-    : super(key: key);
+  const BottomNav({super.key, required this.currentIndex, required this.onTap});
 
   @override
   State<BottomNav> createState() => _BottomNavState();
