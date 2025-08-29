@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
 
@@ -11,7 +11,7 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  int _currentIndex = 3;
+  final int _currentIndex = 3;
 
   @override
   Widget build(BuildContext context) {

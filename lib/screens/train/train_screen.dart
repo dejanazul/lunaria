@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
 
@@ -11,7 +11,7 @@ class TrainScreen extends StatefulWidget {
 }
 
 class _TrainScreenState extends State<TrainScreen> {
-  int _currentIndex = 1;
+  final int _currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {

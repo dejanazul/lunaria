@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
 
@@ -11,7 +11,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _currentIndex = 4;
+  final int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {

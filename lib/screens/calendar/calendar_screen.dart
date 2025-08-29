@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -10,7 +10,7 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
