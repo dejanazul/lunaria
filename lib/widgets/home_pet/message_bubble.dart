@@ -9,7 +9,6 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Special case untuk MessageBubble yang dipanggil tanpa message (misalnya dari home screen)
     if (message == null) {
       return SizedBox(
         width: 158,
@@ -27,10 +26,10 @@ class MessageBubble extends StatelessWidget {
                 'Hop hop! 🐇 I\'m so glad you\'re here!',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 14, // Ukuran font dari Figma
+                  fontSize: 17, // Ukuran font dari Figma
                   fontWeight: FontWeight.w400,
                   color: Colors.black,
-                  height: 1.57, // Line height dari Figma
+                  height: 1.4, // Line height dari Figma
                   letterSpacing: -0.4, // Letter spacing dari Figma
                 ),
               ),
@@ -39,12 +38,9 @@ class MessageBubble extends StatelessWidget {
             Transform.translate(
               offset: const Offset(
                 5,
-                -5,
+                -10,
               ), // Menggunakan offset untuk memindahkan komponen
-              child: CustomPaint(
-                painter: MessageTailPainter(),
-                size: const Size(16, 20),
-              ),
+              child: CustomPaint(),
             ),
           ],
         ),

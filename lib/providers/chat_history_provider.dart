@@ -60,7 +60,7 @@ class ChatHistoryProvider extends ChangeNotifier {
     _chatHistory.add(welcomeMessage); // Tambahkan pesan ke akhir list
   }
 
-  void toggleHistoryVisibility() {
+  void toggleCardVisibility() {
     _isHistoryVisible = !_isHistoryVisible;
 
     if (!_isHistoryVisible) {

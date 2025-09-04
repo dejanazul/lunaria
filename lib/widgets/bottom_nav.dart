@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_colors.dart';
 
 class BottomNav extends StatefulWidget {
@@ -15,13 +16,9 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,
+      height: 125,
       decoration: const BoxDecoration(
-        color: Color(0xFFF5F6F7),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
+        color: Color.fromARGB(255, 255, 255, 255),
       ),
       child: Stack(
         children: [
@@ -41,14 +38,14 @@ class _BottomNavState extends State<BottomNav> {
                     // Calendar Tab
                     _buildNavItem(
                       index: 0,
-                      icon: Icons.calendar_month,
+                      svgAsset: 'assets/icons/calendar_outline.svg',
                       label: 'Calendar',
                       isActive: widget.currentIndex == 0,
                     ),
                     // Train Tab
                     _buildNavItem(
                       index: 1,
-                      icon: Icons.fitness_center,
+                      svgAsset: 'assets/icons/barbell.svg',
                       label: 'Train',
                       isActive: widget.currentIndex == 1,
                     ),
@@ -57,14 +54,14 @@ class _BottomNavState extends State<BottomNav> {
                     // Community Tab
                     _buildNavItem(
                       index: 3,
-                      icon: Icons.people_outline,
+                      svgAsset: 'assets/icons/community.svg',
                       label: 'Community',
                       isActive: widget.currentIndex == 3,
                     ),
                     // Profile Tab
                     _buildNavItem(
                       index: 4,
-                      icon: Icons.person_outline,
+                      svgAsset: 'assets/icons/person.svg',
                       label: 'Profile',
                       isActive: widget.currentIndex == 4,
                     ),
@@ -80,13 +77,6 @@ class _BottomNavState extends State<BottomNav> {
             right: 0,
             child: Center(child: _buildCenterButton()),
           ),
-          // Home Indicator
-          Positioned(
-            bottom: 21,
-            left: 0,
-            right: 0,
-            child: Center(child: _buildHomeIndicator()),
-          ),
         ],
       ),
     );
@@ -94,7 +84,7 @@ class _BottomNavState extends State<BottomNav> {
 
   Widget _buildNavItem({
     required int index,
-    required IconData icon,
+    required String svgAsset,
     required String label,
     required bool isActive,
   }) {
@@ -107,17 +97,36 @@ class _BottomNavState extends State<BottomNav> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 24,
-              width: 24,
+              height: 38,
+              width: 38,
               child:
                   isActive
                       ? ShaderMask(
                         shaderCallback:
                             (bounds) =>
                                 AppColors.primaryGradient.createShader(bounds),
-                        child: Icon(icon, size: 24, color: Colors.white),
+                        blendMode: BlendMode.srcIn,
+                        child: SvgPicture.asset(
+                          svgAsset,
+                          width: 24,
+                          height: 24,
+                          // Warnai putih agar gradient terlihat (mask berdasarkan alpha)
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       )
-                      : Icon(icon, size: 24, color: const Color(0xFF484C52)),
+                      : SvgPicture.asset(
+                        svgAsset,
+                        width: 24,
+                        height: 24,
+                        // Non-aktif: abu-abu
+                        colorFilter: const ColorFilter.mode(
+                          Color(0xFF484C52),
+                          BlendMode.srcIn,
+                        ),
+                      ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -125,7 +134,7 @@ class _BottomNavState extends State<BottomNav> {
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-                fontSize: 10,
+                fontSize: 11,
                 height: 1.2,
                 color:
                     isActive
@@ -148,28 +157,21 @@ class _BottomNavState extends State<BottomNav> {
       child: Transform.translate(
         offset: const Offset(0, -18), // Move button up to overlap container
         child: Container(
-          width: 63,
-          height: 63,
+          width: 80,
+          height: 80,
           decoration: BoxDecoration(
             gradient: AppColors.primaryGradient,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 4),
           ),
-          child: const Center(
-            child: Icon(Icons.pets, size: 35, color: Colors.white),
+          child: Center(
+            child: SvgPicture.asset(
+              "assets/icons/paw.svg",
+              width: 40,
+              height: 32,
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHomeIndicator() {
-    return Container(
-      width: 134,
-      height: 5,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(100),
       ),
     );
   }
