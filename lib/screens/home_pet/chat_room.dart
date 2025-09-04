@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lunaria/constants/app_colors.dart';
+import 'package:lunaria/helpers/responsive_helper.dart';
 import 'package:lunaria/providers/chat_history_provider.dart';
 import 'package:lunaria/widgets/home_pet/message_bubble.dart';
 import 'package:provider/provider.dart';
@@ -92,11 +93,12 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Chat dengan Luna',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
+            fontSize: ResponsiveHelper.getSubheadingFontSize(context),
             color: Colors.white,
           ),
         ),
@@ -116,18 +118,21 @@ class _ChatRoomState extends State<ChatRoom> {
                     children: [
                       Container(
                         color: Colors.white, // Background putih sesuai Figma
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 25,
-                        ), // Padding sesuai Figma (25px dari sisi)
+                        padding: ResponsiveHelper.getHorizontalPadding(context),
                         child: ListView.builder(
                           controller: _scrollController,
                           reverse: false,
                           padding: EdgeInsets.only(
-                            top: 20,
+                            top: ResponsiveHelper.getMediumSpacing(context),
                             bottom:
                                 chatProvider.chatState == ChatState.loading
-                                    ? 70
-                                    : 20,
+                                    ? ResponsiveHelper.getLargeSpacing(
+                                          context,
+                                        ) *
+                                        2
+                                    : ResponsiveHelper.getMediumSpacing(
+                                      context,
+                                    ),
                           ),
                           itemCount: chatProvider.chatHistory.length,
                           itemBuilder: (context, index) {
@@ -140,23 +145,33 @@ class _ChatRoomState extends State<ChatRoom> {
                       // Indikator Loading
                       if (chatProvider.chatState == ChatState.loading)
                         Positioned(
-                          bottom: 20,
-                          left: 25,
+                          bottom: ResponsiveHelper.getMediumSpacing(context),
+                          left: ResponsiveHelper.getMediumSpacing(context),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: ResponsiveHelper.getMediumSpacing(
+                                context,
+                              ),
+                              vertical: ResponsiveHelper.getSmallSpacing(
+                                context,
+                              ),
                             ),
                             decoration: BoxDecoration(
                               color: Colors.black12,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getCardBorderRadius(context),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
-                                  width: 18,
-                                  height: 18,
+                                  width: ResponsiveHelper.getMediumSpacing(
+                                    context,
+                                  ),
+                                  height: ResponsiveHelper.getMediumSpacing(
+                                    context,
+                                  ),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -164,12 +179,19 @@ class _ChatRoomState extends State<ChatRoom> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                const Text(
+                                SizedBox(
+                                  width: ResponsiveHelper.getSmallSpacing(
+                                    context,
+                                  ),
+                                ),
+                                Text(
                                   "Luna sedang mengetik...",
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
-                                    fontSize: 12,
+                                    fontSize:
+                                        ResponsiveHelper.getCaptionFontSize(
+                                          context,
+                                        ),
                                     color: Colors.black54,
                                   ),
                                 ),
@@ -182,21 +204,27 @@ class _ChatRoomState extends State<ChatRoom> {
                       if (chatProvider.chatState == ChatState.error &&
                           chatProvider.errorMessage != null)
                         Positioned(
-                          bottom: 20,
+                          bottom: ResponsiveHelper.getMediumSpacing(context),
                           left: 0,
                           right: 0,
                           child: Center(
                             child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 25,
+                              margin: ResponsiveHelper.getHorizontalPadding(
+                                context,
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: ResponsiveHelper.getMediumSpacing(
+                                  context,
+                                ),
+                                vertical: ResponsiveHelper.getSmallSpacing(
+                                  context,
+                                ),
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.red.shade100,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.getCardBorderRadius(context),
+                                ),
                                 border: Border.all(color: Colors.red.shade300),
                               ),
                               child: Row(
@@ -208,7 +236,10 @@ class _ChatRoomState extends State<ChatRoom> {
                                       "Error: ${chatProvider.errorMessage}",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
-                                        fontSize: 12,
+                                        fontSize:
+                                            ResponsiveHelper.getCaptionFontSize(
+                                              context,
+                                            ),
                                         color: Colors.red.shade700,
                                       ),
                                     ),
@@ -237,7 +268,10 @@ class _ChatRoomState extends State<ChatRoom> {
 
             // Message input area
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getMediumSpacing(context),
+                vertical: ResponsiveHelper.getSmallSpacing(context),
+              ),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(
@@ -265,29 +299,37 @@ class _ChatRoomState extends State<ChatRoom> {
                                   isLoading
                                       ? const Color(0xFFE9E9EB).withOpacity(0.7)
                                       : const Color(0xFFE9E9EB),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getCardBorderRadius(context),
+                              ),
                             ),
                             child: TextField(
                               controller: _messageController,
                               enabled: !isLoading,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintText: 'Ketik pesan...',
                                 hintStyle: TextStyle(
-                                  color: Color(
-                                    0xFF8E8E93,
-                                  ), // Color hint sesuai Figma
+                                  color: const Color(0xFF8E8E93),
                                   fontFamily: 'Poppins',
-                                  fontSize: 14,
+                                  fontSize: ResponsiveHelper.getBodyFontSize(
+                                    context,
+                                  ),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
+                                  horizontal: ResponsiveHelper.getMediumSpacing(
+                                    context,
+                                  ),
+                                  vertical: ResponsiveHelper.getSmallSpacing(
+                                    context,
+                                  ),
                                 ),
                                 border: InputBorder.none,
                               ),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: 14, // Font size sesuai Figma
+                                fontSize: ResponsiveHelper.getBodyFontSize(
+                                  context,
+                                ),
                                 color: Colors.black,
                               ),
                               onSubmitted: (_) => _sendMessage(),
@@ -298,7 +340,7 @@ class _ChatRoomState extends State<ChatRoom> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: ResponsiveHelper.getSmallSpacing(context)),
                     // Send button
                     Consumer<ChatHistoryProvider>(
                       builder: (context, chatProvider, child) {
@@ -310,18 +352,25 @@ class _ChatRoomState extends State<ChatRoom> {
                               isLoading
                                   ? AppColors.primary.withOpacity(0.7)
                                   : AppColors.primary,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getCardBorderRadius(context),
+                          ),
                           child: InkWell(
                             onTap: isLoading ? null : _sendMessage,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveHelper.getCardBorderRadius(context),
+                            ),
                             child: Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: EdgeInsets.all(
+                                ResponsiveHelper.getSmallSpacing(context),
+                              ),
                               child: Icon(
                                 isLoading
                                     ? Icons.hourglass_bottom_rounded
                                     : Icons.arrow_upward_rounded,
                                 color: Colors.white,
-                                size: 20,
+                                size:
+                                    ResponsiveHelper.getIconSize(context) * 0.8,
                               ),
                             ),
                           ),

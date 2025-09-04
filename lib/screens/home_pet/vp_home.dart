@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lunaria/providers/chat_history_provider.dart';
+import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../widgets/home_pet/index.dart';
@@ -47,8 +48,8 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     left: 0,
                     right: 0,
                     child: SizedBox(
-                      height: 789,
-                      width: 393,
+                      height: ResponsiveHelper.getScreenHeight(context) * 0.9,
+                      width: ResponsiveHelper.getScreenWidth(context),
                       child: Image.asset(
                         'assets/images/pet_background-4faf77.png',
                         fit: BoxFit.cover,
@@ -58,37 +59,63 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
 
                   // Main pet character
                   Positioned(
-                    top: 234,
-                    left: 2,
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.28,
+                    left: ResponsiveHelper.getScreenWidth(context) * 0.01,
                     child: SizedBox(
-                      height: 386,
-                      width: 386,
+                      height: ResponsiveHelper.getScreenHeight(context) * 0.46,
+                      width: ResponsiveHelper.getScreenWidth(context) * 0.98,
                       child: Image.asset(
                         'assets/images/pet_main_image.png',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
 
                   // Level indicator
-                  Positioned(top: 60, left: 17, child: _buildLevelIndicator()),
+                  Positioned(
+                    top:
+                        ResponsiveHelper.getSafeAreaTop(context) +
+                        ResponsiveHelper.getMediumSpacing(context),
+                    left: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildLevelIndicator(),
+                  ),
 
                   // Cookie counter
-                  Positioned(top: 58, left: 153, child: _buildCookieCounter()),
+                  Positioned(
+                    top:
+                        ResponsiveHelper.getSafeAreaTop(context) +
+                        ResponsiveHelper.getMediumSpacing(context),
+                    left: ResponsiveHelper.getScreenWidth(context) * 0.39,
+                    child: _buildCookieCounter(),
+                  ),
 
                   // Settings button
-                  Positioned(top: 60, right: 18, child: _buildSettingsButton()),
+                  Positioned(
+                    top:
+                        ResponsiveHelper.getSafeAreaTop(context) +
+                        ResponsiveHelper.getMediumSpacing(context),
+                    right: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildSettingsButton(),
+                  ),
 
                   // Mood button
-                  Positioned(top: 540, right: 20, child: _buildMoodButton()),
+                  Positioned(
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.64,
+                    right: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildMoodButton(),
+                  ),
 
                   // Message bubble (tap to open card)
-                  Positioned(top: 150, right: 19, child: _buildMessageBubble()),
+                  Positioned(
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.18,
+                    right: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildMessageBubble(),
+                  ),
 
                   // Chat History Toggle Button
                   Positioned(
-                    top: 540,
-                    left: 20,
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.64,
+                    left: ResponsiveHelper.getMediumSpacing(context),
                     child: _buildChatHistoryToggle(),
                   ),
 
@@ -121,7 +148,8 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
               }
               return Positioned.fill(
                 child: GestureDetector(
-                  behavior: HitTestBehavior.opaque, // tangkap tap di area kosong
+                  behavior:
+                      HitTestBehavior.opaque, // tangkap tap di area kosong
                   onTap: () {
                     FocusScope.of(context).unfocus(); // tutup keyboard
                     chatProvider.toggleHistoryVisibility(); // dismiss card

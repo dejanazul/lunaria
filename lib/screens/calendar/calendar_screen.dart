@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 
@@ -25,29 +26,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: ResponsiveHelper.getHorizontalPadding(context),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 25),
+                      SizedBox(
+                        height: ResponsiveHelper.getLargeSpacing(context),
+                      ),
                       // My Cycles Title
-                      const Text(
+                      Text(
                         'My Cycles',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
-                          fontSize: 20,
+                          fontSize: ResponsiveHelper.getHeadingFontSize(
+                            context,
+                          ),
                           height: 0.8,
-                          color: Color(0xFF000000),
+                          color: const Color(0xFF000000),
                         ),
                       ),
-                      const SizedBox(height: 31),
+                      SizedBox(
+                        height: ResponsiveHelper.getLargeSpacing(context),
+                      ),
                       // Details Section
                       _buildDetailsSection(),
-                      const SizedBox(height: 15),
+                      SizedBox(
+                        height: ResponsiveHelper.getMediumSpacing(context),
+                      ),
                       // Cycle History Section
                       _buildCycleHistorySection(),
-                      const SizedBox(height: 15),
+                      SizedBox(
+                        height: ResponsiveHelper.getMediumSpacing(context),
+                      ),
                       // Symptoms Section
                       _buildSymptomsSection(),
                       const SizedBox(height: 15),
