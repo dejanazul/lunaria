@@ -57,7 +57,7 @@ class ChatHistoryProvider extends ChangeNotifier {
       isUser: false,
       timestamp: DateTime.now(),
     );
-    _chatHistory.insert(0, welcomeMessage);
+    _chatHistory.add(welcomeMessage); // Tambahkan pesan ke akhir list
   }
 
   void toggleHistoryVisibility() {
@@ -75,7 +75,7 @@ class ChatHistoryProvider extends ChangeNotifier {
   }
 
   void addMessage(ChatMessage message) {
-    _chatHistory.insert(0, message);
+    _chatHistory.add(message); // Tambahkan pesan ke akhir list
     notifyListeners();
   }
 
@@ -132,8 +132,11 @@ class ChatHistoryProvider extends ChangeNotifier {
   }
 
   List<String> _buildConversationHistory() {
-    // Ambil 5 pesan terakhir untuk context
-    final recentMessages = _chatHistory.take(5).toList().reversed.toList();
+    // Ambil 5 pesan terakhir untuk context - sekarang pesan terakhir di akhir list
+    final int count = _chatHistory.length;
+    final startIndex = count >= 5 ? count - 5 : 0;
+    final recentMessages = _chatHistory.sublist(startIndex);
+
     final history = <String>[];
 
     for (final message in recentMessages) {
