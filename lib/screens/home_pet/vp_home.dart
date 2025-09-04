@@ -39,7 +39,9 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                 colors: [Color(0xFF420D4A), Color(0xFF7B347E)],
               ),
             ),
+
             child: SafeArea(
+              bottom: false,
               child: Stack(
                 children: [
                   // Background pet illustration
@@ -62,7 +64,7 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     top: ResponsiveHelper.getScreenHeight(context) * 0.28,
                     left: ResponsiveHelper.getScreenWidth(context) * 0.01,
                     child: SizedBox(
-                      height: ResponsiveHelper.getScreenHeight(context) * 0.46,
+                      height: ResponsiveHelper.getScreenHeight(context) * 0.43,
                       width: ResponsiveHelper.getScreenWidth(context) * 0.98,
                       child: Image.asset(
                         'assets/images/pet_main_image.png',
@@ -89,34 +91,27 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     child: _buildCookieCounter(),
                   ),
 
-                  // Settings button
-                  Positioned(
-                    top:
-                        ResponsiveHelper.getSafeAreaTop(context) +
-                        ResponsiveHelper.getMediumSpacing(context),
-                    right: ResponsiveHelper.getMediumSpacing(context),
-                    child: _buildSettingsButton(),
-                  ),
+                  // // Settings button
+                  // Positioned(
+                  //   top:
+                  //       ResponsiveHelper.getSafeAreaTop(context) +
+                  //       ResponsiveHelper.getMediumSpacing(context),
+                  //   right: ResponsiveHelper.getMediumSpacing(context),
+                  //   child: _buildSettingsButton(),
+                  // ),
 
                   // Mood button
                   Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.64,
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.73,
                     right: ResponsiveHelper.getMediumSpacing(context),
                     child: _buildMoodButton(),
                   ),
 
                   // Message bubble (tap to open card)
                   Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.18,
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.23,
                     right: ResponsiveHelper.getMediumSpacing(context),
                     child: _buildMessageBubble(),
-                  ),
-
-                  // Chat History Toggle Button
-                  Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.64,
-                    left: ResponsiveHelper.getMediumSpacing(context),
-                    child: _buildChatHistoryToggle(),
                   ),
 
                   // Bottom navigation
@@ -152,7 +147,7 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                       HitTestBehavior.opaque, // tangkap tap di area kosong
                   onTap: () {
                     FocusScope.of(context).unfocus(); // tutup keyboard
-                    chatProvider.toggleHistoryVisibility(); // dismiss card
+                    chatProvider.toggleCardVisibility(); // dismiss card
                   },
                   child: const SizedBox.shrink(),
                 ),
@@ -175,9 +170,9 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
     return const CookieCounter();
   }
 
-  Widget _buildSettingsButton() {
-    return const SettingsButton();
-  }
+  // Widget _buildSettingsButton() {
+  //   return const SettingsButton();
+  // }
 
   Widget _buildMoodButton() {
     return const MoodButton();
@@ -189,16 +184,11 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
       onTap: () {
         final chat = Provider.of<ChatHistoryProvider>(context, listen: false);
         if (!chat.isHistoryVisible) {
-          chat.toggleHistoryVisibility(); // show card
+          chat.toggleCardVisibility(); // show card
         }
       },
       child: const MessageBubble(),
     );
-  }
-
-  // Implement chat history toggle button
-  Widget _buildChatHistoryToggle() {
-    return const ChatHistoryToggle();
   }
 
   Widget _buildChatHistoryCard() {
