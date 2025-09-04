@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
@@ -18,11 +19,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Profile',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
+            fontSize: ResponsiveHelper.getSubheadingFontSize(context),
             color: AppColors.textPrimary,
           ),
         ),
@@ -34,27 +36,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.person_outline, size: 80, color: Colors.white),
-              SizedBox(height: 20),
+              Icon(
+                Icons.person_outline,
+                size: ResponsiveHelper.getIconSize(context) * 3,
+                color: Colors.white,
+              ),
+              SizedBox(height: ResponsiveHelper.getMediumSpacing(context)),
               Text(
                 'Profile Screen',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 28,
+                  fontSize: ResponsiveHelper.getHeadingFontSize(context) + 8,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: ResponsiveHelper.getSmallSpacing(context)),
               Text(
                 'Manage your account\nand pet preferences',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 16,
+                  fontSize: ResponsiveHelper.getBodyFontSize(context),
                   color: Colors.white70,
                 ),
                 textAlign: TextAlign.center,
