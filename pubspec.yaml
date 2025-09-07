@@ -9,7 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_secure_storage: ^9.2.4
   flutter_svg: ^2.0.9
+  google_generative_ai: ^0.4.7
+  http: ^1.5.0
+  provider: ^6.1.5+1
+  youtube_player_flutter: ^9.1.2
 
 dev_dependencies:
   flutter_test:
@@ -23,15 +28,3 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-  
-  # Custom fonts
-  # fonts:
-  #   - family: Poppins
-  #     fonts:
-  #       - asset: fonts/Poppins-Regular.ttf
-  #       - asset: fonts/Poppins-Medium.ttf
-  #         weight: 500
-  #       - asset: fonts/Poppins-SemiBold.ttf
-  #         weight: 600
-  #       - asset: fonts/Poppins-Bold.ttf
-  #         weight: 700

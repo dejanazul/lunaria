@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import '../../helpers/responsive_helper.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
 import '../../constants/app_colors.dart';
 import 'language.dart';
@@ -26,161 +27,64 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _currentIndex = 4;
-
-  bool trackCycle = false;
+  final int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Column(
-        children: [
-          // Header ungu sticky
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const EditProfilePage()),
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              decoration: const BoxDecoration(
-                color: Color(0xFF7B2CBF),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveHelper.getSubheadingFontSize(context),
+            color: AppColors.textPrimary,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person_outline,
+                size: ResponsiveHelper.getIconSize(context) * 3,
+                color: Colors.white,
+              ),
+              SizedBox(height: ResponsiveHelper.getMediumSpacing(context)),
+              Text(
+                'Profile Screen',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: ResponsiveHelper.getHeadingFontSize(context) + 8,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 45,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person,
-                        size: 50, color: Color(0xFF7B2CBF)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Rizky Nabila Ramadhani",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    "rizkynabilaramadhani@gmail.com",
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                  const Text(
-                    "@rznabilar",
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                ],
+              SizedBox(height: ResponsiveHelper.getSmallSpacing(context)),
+              Text(
+                'Manage your account\nand pet preferences',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: ResponsiveHelper.getBodyFontSize(context),
+                  color: Colors.white70,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+            ],
           ),
-
-          // Sisanya scroll
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-
-                  // General Section
-                  buildSectionTitle("General"),
-                  buildCard(
-                    children: [
-                      buildListTile(context, "Language", const LanguagePage()),
-                      buildListTile(context, "Reminders", const RemindersPage()),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Personal Details
-                  buildSectionTitle("Personal Details"),
-                  buildCard(
-                    children: [
-                      buildListTile(context, "Name", const NamePage(),
-                          trailingText: "Nabila"),
-                      buildListTile(context, "Date of Birth", const BirthDatePage(),
-                          trailingText: "14 Nov 2003"),
-                      buildListTile(context, "Height", const HeightPage(),
-                          trailingText: "165 cm"),
-                      buildListTile(context, "Weight", const WeightPage(),
-                          trailingText: "57 kg"),
-                      buildListTile(context, "Fitness Level", const FitnessLevelPage(),
-                          trailingText: "Newbie"),
-                      buildListTile(context, "Classes", const ClassesPage(),
-                          trailingText: "Stretching, yoga"),
-                      buildListTile(context, "Daily Step Goal", const StepGoalPage(),
-                          trailingText: "7.500"),
-                      SwitchListTile(
-                        title: const Text("Track Cycle",
-                            style: TextStyle(fontSize: 14)),
-                        value: trackCycle,
-                        onChanged: (val) {
-                          setState(() {
-                            trackCycle = val;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Legal & Privacy
-                  buildSectionTitle("Legal & Privacy"),
-                  buildCard(
-                    children: [
-                      buildListTile(context, "Terms of Use", const TermsPage()),
-                      buildListTile(context, "Privacy Policy", const PrivacyPage()),
-                      buildListTile(
-                          context, "Subscription Terms", const SubscriptionPage()),
-                      buildListTile(
-                          context, "Manage Personal Data", const ManageDataPage()),
-                      buildListTile(
-                          context, "e-Privacy Settings", const EPrivacyPage()),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Logout Section
-                  buildCard(
-                    children: [
-                      ListTile(
-                        title: const Text(
-                          "Logout",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Logout tapped")),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),bottomNavigationBar: BottomNav(
+        ),
+      ),
+      bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
           NavigationService.navigateToBottomNavScreen(

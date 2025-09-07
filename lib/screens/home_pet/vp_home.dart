@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_nav.dart';
+import 'package:provider/provider.dart';
+import 'package:lunaria/providers/chat_history_provider.dart';
+import '../../helpers/responsive_helper.dart';
+import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
+import '../../widgets/home_pet/index.dart';
 
 class VPHomeScreen extends StatefulWidget {
   const VPHomeScreen({super.key});
@@ -10,322 +14,196 @@ class VPHomeScreen extends StatefulWidget {
 }
 
 class _VPHomeScreenState extends State<VPHomeScreen> {
-  int _currentIndex = 2; // Pet tab is selected
+  final int _currentIndex = 2;
+  final TextEditingController _chatController = TextEditingController();
+  final FocusNode _chatFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _chatController.dispose();
+    _chatFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF420D4A), Color(0xFF7B347E)],
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Background pet illustration
-              Positioned(
-                top: -31,
-                left: 0,
-                right: 0,
-                child: SizedBox(
-                  height: 789,
-                  width: 393,
-                  child: Image.asset(
-                    'assets/images/pet_background-4faf77.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-              // Main pet character
-              Positioned(
-                top: 234,
-                left: 2,
-                child: SizedBox(
-                  height: 386,
-                  width: 386,
-                  child: Image.asset(
-                    'assets/images/pet_main_image.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-              // Level indicator
-              Positioned(top: 60, left: 17, child: _buildLevelIndicator()),
-
-              // Cookie counter
-              Positioned(top: 58, left: 153, child: _buildCookieCounter()),
-
-              // Settings button
-              Positioned(top: 60, right: 18, child: _buildSettingsButton()),
-
-              // Mood button
-              Positioned(top: 540, right: 20, child: _buildMoodButton()),
-
-              // Message bubble
-              Positioned(top: 150, right: 19, child: _buildMessageBubble()),
-
-              // Bottom navigation
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: BottomNav(
-                  currentIndex: _currentIndex,
-                  onTap: (index) {
-                    NavigationService.navigateToBottomNavScreen(
-                      context,
-                      index,
-                      _currentIndex,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLevelIndicator() {
-    return SizedBox(
-      width: 126,
-      height: 34,
-      child: Stack(
+      body: Stack(
         children: [
-          // Level progress background
-          Positioned(
-            left: 17,
-            top: 2,
-            child: Container(
-              width: 109,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF913F9E)),
-              ),
-            ),
-          ),
-          // Level progress fill
-          Positioned(
-            left: 7,
-            top: 2,
-            child: Container(
-              width: 83,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE9CBEE),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF913F9E)),
-              ),
-            ),
-          ),
-          // Level text
-          const Positioned(
-            left: 30,
-            top: 4,
-            child: Text(
-              'Level 2',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF901DA1),
-              ),
-            ),
-          ),
-          // Level icon
-          Positioned(
-            left: 0,
-            top: 0,
-            child: SizedBox(
-              width: 32,
-              height: 34,
-              child: Image.asset(
-                'assets/images/level_icon-13139c.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCookieCounter() {
-    return SizedBox(
-      width: 75,
-      height: 28,
-      child: Stack(
-        children: [
-          // Cookie counter background
-          Positioned(
-            left: 3,
-            top: 4,
-            child: Container(
-              width: 72,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2D6BA),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF553F35)),
-              ),
-            ),
-          ),
-          // Cookie count text
-          const Positioned(
-            left: 39,
-            top: 6,
-            child: Text(
-              '10',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF553F35),
-              ),
-            ),
-          ),
-          // Cookie icon
-          Positioned(
-            left: 0,
-            top: 0,
-            child: SizedBox(
-              width: 28,
-              height: 28,
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/cookie_icon.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsButton() {
-    return SizedBox(
-      width: 24,
-      height: 24,
-      child: Stack(
-        children: [
-          // Settings background
-          Positioned(
-            left: 2,
-            top: 2,
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: Color(0xFF913F9E),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          // Settings icon (dots)
-          const Positioned(
-            left: 0,
-            top: 0,
-            child: Icon(Icons.more_horiz, size: 24, color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMoodButton() {
-    return SizedBox(
-      width: 55,
-      height: 55,
-      child: Stack(
-        children: [
-          // Mood button background
+          // Main content stack
           Container(
-            width: 55,
-            height: 55,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Color(0xFF420D4A), Color(0xFF7B347E)],
               ),
-              shape: BoxShape.circle,
             ),
-          ),
-          // Mood plus icon
-          const Center(child: Icon(Icons.add, size: 32, color: Colors.white)),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildMessageBubble() {
-    return SizedBox(
-      width: 158,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Message bubble
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE9E9EB),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Text(
-              'Hop hop! 🐇 I\'m so glad you\'re here!',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
-                color: Colors.black,
-                height: 1.29,
+            child: SafeArea(
+              bottom: false,
+              child: Stack(
+                children: [
+                  // Background pet illustration
+                  Positioned(
+                    top: -31,
+                    left: 0,
+                    right: 0,
+                    child: SizedBox(
+                      height: ResponsiveHelper.getScreenHeight(context) * 0.9,
+                      width: ResponsiveHelper.getScreenWidth(context),
+                      child: Image.asset(
+                        'assets/images/pet_background-4faf77.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+
+                  // Main pet character
+                  Positioned(
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.28,
+                    left: ResponsiveHelper.getScreenWidth(context) * 0.01,
+                    child: SizedBox(
+                      height: ResponsiveHelper.getScreenHeight(context) * 0.43,
+                      width: ResponsiveHelper.getScreenWidth(context) * 0.98,
+                      child: Image.asset(
+                        'assets/images/pet_main_image.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+
+                  // Level indicator
+                  Positioned(
+                    top:
+                        ResponsiveHelper.getSafeAreaTop(context) +
+                        ResponsiveHelper.getMediumSpacing(context),
+                    left: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildLevelIndicator(),
+                  ),
+
+                  // Cookie counter
+                  Positioned(
+                    top:
+                        ResponsiveHelper.getSafeAreaTop(context) +
+                        ResponsiveHelper.getMediumSpacing(context),
+                    left: ResponsiveHelper.getScreenWidth(context) * 0.39,
+                    child: _buildCookieCounter(),
+                  ),
+
+                  // // Settings button
+                  // Positioned(
+                  //   top:
+                  //       ResponsiveHelper.getSafeAreaTop(context) +
+                  //       ResponsiveHelper.getMediumSpacing(context),
+                  //   right: ResponsiveHelper.getMediumSpacing(context),
+                  //   child: _buildSettingsButton(),
+                  // ),
+
+                  // Mood button
+                  Positioned(
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.73,
+                    right: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildMoodButton(),
+                  ),
+
+                  // Message bubble (tap to open card)
+                  Positioned(
+                    top: ResponsiveHelper.getScreenHeight(context) * 0.23,
+                    right: ResponsiveHelper.getMediumSpacing(context),
+                    child: _buildMessageBubble(),
+                  ),
+
+                  // Bottom navigation
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: BottomNav(
+                      currentIndex: _currentIndex,
+                      onTap: (index) {
+                        NavigationService.navigateToBottomNavScreen(
+                          context,
+                          index,
+                          _currentIndex,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          // Message tail
-          Container(
-            margin: const EdgeInsets.only(right: 5),
-            child: CustomPaint(
-              painter: MessageTailPainter(),
-              size: const Size(16, 20),
-            ),
+
+          // TAP BARRIER: tap di luar card untuk dismiss (letakkan SEBELUM card)
+          Consumer<ChatHistoryProvider>(
+            builder: (context, chatProvider, _) {
+              if (!chatProvider.isHistoryVisible) {
+                return const SizedBox.shrink();
+              }
+              return Positioned.fill(
+                child: GestureDetector(
+                  behavior:
+                      HitTestBehavior.opaque, // tangkap tap di area kosong
+                  onTap: () {
+                    FocusScope.of(context).unfocus(); // tutup keyboard
+                    chatProvider.toggleCardVisibility(); // dismiss card
+                  },
+                  child: const SizedBox.shrink(),
+                ),
+              );
+            },
           ),
+
+          // Chat history card overlays everything, including bottom nav
+          _buildChatHistoryCard(),
         ],
       ),
     );
   }
-}
 
-// Custom painter for message bubble tail
-class MessageTailPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = const Color(0xFFE9E9EB)
-          ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(0, 0);
-    path.lineTo(size.width * 0.7, 0);
-    path.lineTo(size.width, size.height * 0.6);
-    path.lineTo(size.width * 0.3, size.height);
-    path.close();
-
-    canvas.drawPath(path, paint);
+  Widget _buildLevelIndicator() {
+    return const LevelIndicator();
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget _buildCookieCounter() {
+    return const CookieCounter();
+  }
+
+  // Widget _buildSettingsButton() {
+  //   return const SettingsButton();
+  // }
+
+  Widget _buildMoodButton() {
+    return const MoodButton();
+  }
+
+  // Bubble sekarang bisa di-tap untuk membuka card
+  Widget _buildMessageBubble() {
+    return GestureDetector(
+      onTap: () {
+        final chat = Provider.of<ChatHistoryProvider>(context, listen: false);
+        if (!chat.isHistoryVisible) {
+          chat.toggleCardVisibility(); // show card
+        }
+      },
+      child: const MessageBubble(),
+    );
+  }
+
+  Widget _buildChatHistoryCard() {
+    return ChatHistoryCard(
+      chatController: _chatController,
+      sendMessage: _sendMessage,
+    );
+  }
+
+  Future<void> _sendMessage() async {
+    final text = _chatController.text.trim();
+    if (text.isEmpty) return;
+
+    final provider = Provider.of<ChatHistoryProvider>(context, listen: false);
+    _chatController.clear();
+    await provider.sendMessageToGemini(text);
+  }
 }
