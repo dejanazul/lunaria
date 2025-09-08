@@ -1,127 +1,113 @@
+import 'package:flutter/foundation.dart';
 import 'package:lunaria/services/supabase_service.dart';
 import 'package:lunaria/services/gemini_service.dart';
-import 'package:flutter/foundation.dart';
+import 'package:lunaria/services/text_embed_service.dart';
 
 class QAService {
-  // Threshold untuk menentukan apakah hasil dari similarity search cukup relevan
-  static const double RELEVANCE_THRESHOLD = 0.75;
+  final GeminiService _geminiService;
+  final SupabaseService _supabaseService;
+  final TextEmbedService _textEmbedService;
 
-  /// Mencari jawaban untuk pertanyaan user menggunakan RAG (Retrieval Augmented Generation)
-  ///
-  /// 1. Melakukan similarity search untuk mencari dokumen yang relevan
-  /// 2. Jika ditemukan dokumen yang relevan, jawaban diambil dari dokumen tersebut
-  /// 3. Jika tidak ditemukan dokumen yang relevan, menggunakan LLM untuk menjawab
-  static Future<String> getAnswer({
-    required String question,
-    List<double>? embeddings,
-  }) async {
+  QAService({
+    GeminiService? geminiService,
+    SupabaseService? supabaseService,
+    TextEmbedService? textEmbedService,
+  }) : _geminiService = geminiService ?? GeminiService(),
+       _supabaseService = supabaseService ?? SupabaseService(),
+       _textEmbedService = textEmbedService ?? TextEmbedService();
+
+  /// Menghasilkan jawaban untuk pertanyaan user
+  Future<Map<String, dynamic>> getAnswer(String question) async {
+    debugPrint('============= DEBUG: QA SERVICE =============');
+    debugPrint(
+      '🔍 Memproses pertanyaan: "${question.substring(0, question.length > 50 ? 50 : question.length)}..."',
+    );
+
     try {
-      // Langkah 1: Lakukan similarity search
-      final results = await SupabaseService.similaritySearch(
-        query: question,
-        matchThreshold:
-            0.6, // Set threshold lebih rendah untuk mendapatkan lebih banyak kandidat
-        matchCount: 3,
-        embeddings: embeddings,
-      );
+      // 1. Cek dan jawab pertanyaan jika tidak butuh database
+      final checkResult = await _geminiService.checkAndAnswerQuestion(question);
 
-      // Langkah 2: Cek apakah ada hasil yang relevan
-      if (results.isNotEmpty) {
-        // Ambil hasil dengan similarity tertinggi
-        final topResult = results.first;
-        final double similarity = topResult['similarity'] ?? 0.0;
-
-        // Jika similarity di atas threshold, gunakan jawaban dari database
-        if (similarity >= RELEVANCE_THRESHOLD) {
-          return _formatAnswer(topResult['content'], question, similarity);
-        }
+      // 2. Jika tidak membutuhkan database, kembalikan jawaban dari LLM
+      if (checkResult['needsDatabase'] == false) {
+        debugPrint('✅ Mendapatkan jawaban langsung dari LLM');
+        debugPrint('============= END QA SERVICE =============');
+        return {
+          'answer': checkResult['answer'],
+          'source': 'ai',
+          'used_database': false,
+        };
       }
 
-      // Langkah 3: Jika tidak ada hasil relevan, gunakan LLM
-      return _getLLMResponse(question, results);
-    } catch (e) {
-      debugPrint('Error in getAnswer: $e');
-      // Langkah 4: Fallback untuk error handling
-      return _getLLMResponse(question, []);
-    }
-  }
-
-  /// Format jawaban dari database dengan konteks
-  static String _formatAnswer(
-    String content,
-    String question,
-    double similarity,
-  ) {
-    final confidencePercentage = (similarity * 100).toStringAsFixed(1);
-
-    return '''
-Berdasarkan informasi yang tersedia (keyakinan: $confidencePercentage%):
-
-$content
-''';
-  }
-
-  /// Dapatkan jawaban dari LLM ketika tidak ditemukan hasil yang relevan di database
-  static Future<String> _getLLMResponse(
-    String question,
-    List<Map<String, dynamic>> partialResults,
-  ) async {
-    try {
-      // Buat prompt dengan konteks yang mungkin berguna (meski tidak cukup relevan)
-      String prompt = _buildPromptForLLM(question, partialResults);
-
-      // Panggil LLM menggunakan GeminiService
-      final geminiService = GeminiService();
-      // Pastikan gemini sudah diinisialisasi
-      if (!geminiService.isInitialized) {
-        // Ambil API key dari service atau environment
-        await geminiService.initialize(
-          apiKey: '',
-        ); // API key akan diambil dari ApiKeyService
-      }
-
-      final response = await geminiService.generateResponse(prompt);
-
-      return response;
-    } catch (e) {
-      debugPrint('Error in _getLLMResponse: $e');
-      return "Maaf, saya tidak dapat menemukan informasi yang relevan dan terjadi error saat menghubungi model bahasa. Silakan coba lagi nanti.";
-    }
-  }
-
-  /// Buat prompt untuk LLM dengan konteks dari hasil partial jika ada
-  static String _buildPromptForLLM(
-    String question,
-    List<Map<String, dynamic>> partialResults,
-  ) {
-    StringBuffer contextBuilder = StringBuffer();
-
-    // Tambahkan konteks dari hasil partial jika ada
-    if (partialResults.isNotEmpty) {
-      contextBuilder.writeln(
-        "Berikut beberapa informasi yang mungkin relevan, tetapi tidak sepenuhnya menjawab pertanyaan:",
+      // 3. Jika butuh database, lakukan text embedding
+      debugPrint(
+        '📚 Pertanyaan membutuhkan database, melakukan text embedding...',
       );
+      final embeddings = await TextEmbedService.getEmbedding(question);
+      debugPrint('HASIL EMBEDDING: $embeddings');
 
-      for (var i = 0; i < partialResults.length; i++) {
-        final result = partialResults[i];
-        final similarity = result['similarity'] ?? 0.0;
-        final simPercent = (similarity * 100).toStringAsFixed(1);
-
-        contextBuilder.writeln(
-          "Informasi #${i + 1} (relevansi: $simPercent%):",
+      if (embeddings.isEmpty) {
+        debugPrint('⚠️ Gagal membuat embedding, menggunakan fallback response');
+        final fallbackAnswer = await _geminiService.generateLunaResponse(
+          "Maaf, saya tidak dapat memproses embedding untuk pertanyaan Anda. " +
+              "Silakan coba lagi atau ajukan pertanyaan dengan cara yang berbeda.",
         );
-        contextBuilder.writeln("${result['content']}");
-        contextBuilder.writeln("");
+
+        return {
+          'answer': fallbackAnswer,
+          'source': 'ai',
+          'used_database': false,
+          'error': 'embedding_failed',
+        };
       }
+
+      // 4. Embedding berhasil dibuat, untuk saat ini kita hanya mengembalikan info ini
+      debugPrint(
+        '✅ Embedding berhasil dibuat dengan ${embeddings.length} dimensi',
+      );
+      debugPrint('✅ Mengembalikan respons sementara tentang embedding');
+      debugPrint('============= END QA SERVICE =============');
+
+      final tempAnswer = await _geminiService.generateLunaResponse(
+        "Saya telah mengidentifikasi bahwa pertanyaan Anda membutuhkan data dari database. " +
+            "Text embedding telah berhasil dibuat dengan ${embeddings.length} dimensi. " +
+            "Saya sedang mencari informasi yang relevan untuk menjawab pertanyaan Anda.",
+      );
+
+      return {
+        'answer': tempAnswer,
+        'source': 'processing',
+        'used_database': true,
+        'embedding_length': embeddings.length,
+      };
+    } catch (e) {
+      debugPrint('❌ Error in QA service: $e');
+      debugPrint('============= END QA SERVICE (ERROR) =============');
+      throw Exception('Gagal memproses pertanyaan: $e');
+    }
+  }
+
+  /// Membangun context dari hasil search Supabase (untuk implementasi RAG nanti)
+  String _buildContextFromResults(List<Map<String, dynamic>> results) {
+    // Existing implementation...
+    if (results.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    buffer.writeln('Berikut adalah informasi dari database yang relevan:');
+    buffer.writeln();
+
+    for (int i = 0; i < results.length; i++) {
+      final doc = results[i];
+      final title = doc['title'] ?? 'Dokumen ${i + 1}';
+      final content = doc['content'] ?? '';
+      final similarity = doc['similarity']?.toStringAsFixed(2) ?? 'N/A';
+
+      buffer.writeln('---');
+      buffer.writeln('DOKUMEN: $title (Relevansi: $similarity)');
+      buffer.writeln('ISI: $content');
+      buffer.writeln('---');
+      buffer.writeln();
     }
 
-    return '''
-Kamu adalah asisten AI yang membantu user di aplikasi Lunaria.
-${contextBuilder.toString()}
-
-Pertanyaan user: $question
-
-Berikan jawaban yang informatif dan akurat. Jika kamu tidak memiliki informasi yang cukup atau tidak yakin, akui saja dan jangan memberikan jawaban yang salah. Jawaban diformat dengan Markdown dan singkat namun informatif.
-''';
+    return buffer.toString();
   }
 }

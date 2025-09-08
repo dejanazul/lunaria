@@ -7,7 +7,8 @@ class ApiKeyService {
   );
 
   // Kunci untuk menyimpan API key di secure storage
-  static const String _geminiApiKeyKey = 'gemini_api_key';
+  static const String _geminiApiKeyKey =
+      'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
 
   // API Key default yang hardcoded
   static const String _defaultApiKey =

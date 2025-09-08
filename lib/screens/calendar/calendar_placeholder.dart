@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/screens/profile/profile_screen.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../constants/app_colors.dart';
 import '../train/train_screen.dart';
 import '../home_pet/vp_home.dart';
 import '../community/community_screen.dart';
-import '../profile/profile_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});

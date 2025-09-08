@@ -3,7 +3,6 @@ class AppAssets {
   // Base paths
   static const String _iconPath = 'assets/icons';
   static const String _imagePath = 'assets/images';
-  static const String _fontPath = 'assets/fonts';
 
   // Icons (SVG)
   static const String iconArrowUp = '$_iconPath/arrow_up.svg';

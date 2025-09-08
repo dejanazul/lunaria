@@ -119,15 +119,6 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     ),
                   ),
 
-                  // // Settings button
-                  // Positioned(
-                  //   top:
-                  //       ResponsiveHelper.getSafeAreaTop(context) +
-                  //       ResponsiveHelper.getMediumSpacing(context),
-                  //   right: ResponsiveHelper.getMediumSpacing(context),
-                  //   child: _buildSettingsButton(),
-                  // ),
-
                   // Mood button
                   Positioned(
                     top: ResponsiveHelper.getScreenHeight(context) * 0.73,
@@ -221,10 +212,6 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
     );
   }
 
-  // Widget _buildSettingsButton() {
-  //   return const SettingsButton();
-  // }
-
   Widget _buildMoodButton() {
     return const MoodButton();
   }
@@ -255,8 +242,6 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
 
     final provider = Provider.of<ChatHistoryProvider>(context, listen: false);
     _chatController.clear();
-
-    
 
     await provider.sendMessageToGemini(text);
   }

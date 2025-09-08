@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../services/gemini_service.dart';
 import '../services/api_key_service.dart';
-import '../services/question_answering_service.dart';
+import '../services/qa_service.dart';
 
 enum ChatState { idle, loading, error, needsApiKey }
 
@@ -10,7 +10,7 @@ class ChatHistoryProvider extends ChangeNotifier {
   final List<ChatMessage> _chatHistory = [];
   bool _isHistoryVisible = false;
   final GeminiService _geminiService = GeminiService();
-  final QuestionAnsweringService _qaService = QuestionAnsweringService();
+  final QAService _qaService = QAService();
   ChatState _chatState = ChatState.idle;
   String? _errorMessage;
 
@@ -97,24 +97,20 @@ class ChatHistoryProvider extends ChangeNotifier {
       _chatState = ChatState.loading;
       notifyListeners();
 
-      // Prepare conversation history
-      final conversationHistory = _buildConversationHistory();
+      // Mendapatkan jawaban dari QAService
+      final qaResult = await _qaService.getAnswer(userMessage);
 
-      // Get AI response dengan metode hybrid (similarity search + LLM)
-      final response = await _qaService.getAnswer(
-        userMessage,
-        conversationHistory: conversationHistory,
-      );
-
-      final String aiResponse = response['answer'];
-      final bool isFromDatabase = response['isFromDatabase'];
+      // Mengekstrak data dari hasil
+      final answer = qaResult['answer'] as String;
+      final source = qaResult['source'] as String;
+      final usedDatabase = qaResult['used_database'] as bool;
 
       // Add AI response
       final aiMessage = ChatMessage(
-        text: aiResponse,
+        text: answer,
         isUser: false,
         timestamp: DateTime.now(),
-        isFromDatabase: isFromDatabase,
+        isFromDatabase: usedDatabase,
       );
       addMessage(aiMessage);
 

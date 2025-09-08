@@ -2,34 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-/// Service untuk menghasilkan embedding dari teks menggunakan Hugging Face API
-/// dengan model LazarusNLP/all-indo-e5-small-v4 (model bahasa Indonesia)
 class TextEmbedService {
-  /// API key untuk Hugging Face
-  static const String apiKey = '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';
+  static const String apiKey = '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';
 
-  /// Model embedding bahasa Indonesia
-  static const String model = 'LazarusNLP/all-indo-e5-small-v4';
-
-  /// URL endpoint Hugging Face
   static const String apiUrl =
-      'https://api-inference.huggingface.co/models/$model';
+      "https://router.huggingface.co/hf-inference/models/LazarusNLP/all-indo-e5-small-v4/pipeline/feature-extraction";
 
-  /// Menghasilkan embedding untuk teks input menggunakan Hugging Face API
-  ///
-  /// [input] - Teks yang akan dikonversi menjadi embedding vector
-  ///
-  /// Returns List<double> embedding vector atau empty list jika gagal
   static Future<List<double>> getEmbedding(String input) async {
     debugPrint('============= DEBUG: TEXT EMBEDDING =============');
-    debugPrint('📝 Mulai proses embedding teks: "${input.substring(0, input.length > 50 ? 50 : input.length)}..."');
-    debugPrint('📝 Model yang digunakan: $model');
-    
-    final Map<String, dynamic> payload = {
-      'inputs': {
-        "sentences": [input],
-      },
-    };
+    debugPrint(
+      '📝 Mulai proses embedding teks: "${input.substring(0, input.length > 50 ? 50 : input.length)}..."',
+    );
+    debugPrint('📝 Model: LazarusNLP/all-indo-e5-small-v4');
+    debugPrint('📝 Endpoint: feature-extraction');
+
+    final Map<String, dynamic> payload = {'inputs': input};
 
     try {
       final response = await http.post(
@@ -41,22 +28,36 @@ class TextEmbedService {
         body: json.encode(payload),
       );
 
+      debugPrint('📊 Response status: ${response.statusCode}');
+      debugPrint(
+        '📊 Response body preview: ${response.body.length > 200 ? response.body.substring(0, 200) + "..." : response.body}',
+      );
+
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        // Konversi embedding dari List<dynamic> ke List<double>
-        final embeddings = List<double>.from(result[0]['embedding']);
+
+        // Feature extraction mengembalikan array embeddings
+        List<double> embeddings;
+        if (result is List && result.isNotEmpty) {
+          // Format bisa berupa nested array atau flat array
+          embeddings = List<double>.from(result);
+        } else {
+          debugPrint('❌ Unexpected response format: $result');
+          return [];
+        }
+
         debugPrint('✅ Embedding berhasil dibuat: ${embeddings.length} dimensi');
+        debugPrint('📊 Sample values: [${embeddings.take(5).join(", ")}...]');
         debugPrint('============= END EMBEDDING =============');
         return embeddings;
       } else {
-        debugPrint(
-          '❌ Failed to get embedding: ${response.statusCode}, ${response.body}',
-        );
+        debugPrint('❌ HTTP Error: ${response.statusCode}');
+        debugPrint('❌ Response: ${response.body}');
         debugPrint('============= END EMBEDDING (ERROR) =============');
         return [];
       }
     } catch (e) {
-      debugPrint('❌ Error during embedding request: $e');
+      debugPrint('❌ Exception: $e');
       debugPrint('============= END EMBEDDING (ERROR) =============');
       return [];
     }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'api_key_service.dart';
@@ -8,16 +10,16 @@ class GeminiService {
 
   bool get isInitialized => _isInitialized;
 
-  Future<void> initialize({required String apiKey}) async {
+  Future<void> initialize({String? apiKey}) async {
     try {
-      final apiKey = await ApiKeyService.getGeminiApiKey();
-      if (apiKey.isEmpty) {
+      final apiKeyToUse = apiKey ?? await ApiKeyService.getGeminiApiKey();
+      if (apiKeyToUse.isEmpty) {
         throw Exception('API key tidak ditemukan');
       }
 
       _model = GenerativeModel(
         model: 'gemini-1.5-flash-latest',
-        apiKey: apiKey,
+        apiKey: apiKeyToUse,
         generationConfig: GenerationConfig(
           temperature: 0.5,
           topK: 40,
@@ -45,124 +47,197 @@ class GeminiService {
     }
   }
 
-  Future<String> generateResponse(
-    String userMessage, {
-    List<String>? conversationHistory,
-  }) async {
-    debugPrint('============= DEBUG: GEMINI GENERATION =============');
-    debugPrint('💬 Permintaan ke Gemini untuk message: "${userMessage.substring(0, userMessage.length > 50 ? 50 : userMessage.length)}..."');
-    debugPrint('💬 History tersedia: ${conversationHistory != null ? conversationHistory.length : 0} pesan');
-    debugPrint('💬 Model: gemini-1.5-flash-latest');
-    
-    if (!_isInitialized || _model == null) {
-      debugPrint('❌ Gemini belum diinisialisasi');
-      debugPrint('============= END GEMINI GENERATION (ERROR) =============');
-      throw Exception('Gemini belum diinisialisasi');
-    }
+  /// Memeriksa apakah pertanyaan memerlukan informasi dari database
+  ///
+  /// Mengembalikan `true` jika pertanyaan berkaitan dengan topik
+  /// di database, dan `false` jika pertanyaan umum
+  Future<bool> checkIfNeedsDatabase(String question) async {
+    debugPrint('============= DEBUG: GEMINI DATABASE CHECK =============');
+    debugPrint(
+      '🤔 Memeriksa kebutuhan database untuk: "${question.substring(0, min(50, question.length))}..."',
+    );
+
+    if (!_isInitialized) await initialize();
 
     try {
-      // Build context dengan conversation history
-      final contextPrompt = _buildContextPrompt(
-        userMessage,
-        conversationHistory,
-      );
+      final prompt = '''
+Kamu adalah sistem evaluasi untuk aplikasi Lunaria. Tugasmu adalah menentukan apakah pertanyaan user memerlukan informasi dari database spesifik.
 
-      final content = [Content.text(contextPrompt)];
+Database Lunaria berisi informasi tentang topik-topik berikut:
+1. Bagaimana cara mendapatkan cookies di aplikasi Lunaria.
+2. Bagaimana cara menggunakan cookeis di aplikasi Lunaria.
+3. User manual soal calender dan log.
+4. User manual soal menu train.
+5. User manual soal menu assistant planner.
+6. Topik soal siklus menstruasi.
+7. Penyakit yang berhubungan dengan menstruasi.
+8. Keram saat menstruasi.
+9. Kembung saat menstruasi.
+10. Kelelahan saat menstruasi.
+11. Kelebihan dari melakukan olahraga saat menstruasi.
+12. Topik tentang fase Menstrual, Follicular, Ovulation, Luteal.
+13. Topik tentang medical disclaimer.
+14. Apa yang harus dilakukan pengguna jika sedang menstruasi.
+
+Jika pertanyaan berkaitan dengan salah satu topik di atas, jawab "true". Jika pertanyaan bersifat umum dan tidak memerlukan informasi spesifik dari database, jawab "false".
+
+**PENTING:**
+cukup jawab dengan struktur JSON true or false, tanpa penjelasan tambahan. Tanpa ada chat maupun konteks lain.
+Pertanyaan: "$question"
+
+**STRUKTUR JAWABAN:**
+{
+  "needsDatabase": true/false
+}
+''';
+
+      final content = [Content.text(prompt)];
+      final response = await _model!.generateContent(content);
+
+      if (response.text == null || response.text!.isEmpty) {
+        debugPrint('❌ Response kosong saat evaluasi pertanyaan');
+        debugPrint(
+          '============= END GEMINI DATABASE CHECK (ERROR) =============',
+        );
+        return true; // Default ke pencarian database jika gagal
+      }
+
+      final rawResponse = response.text!.trim();
+      debugPrint('📊 Raw response: $rawResponse');
+
+      // Coba parse sebagai JSON
+      try {
+        // Cari curly braces untuk mengekstrak JSON jika terdapat text lain
+        final startIndex = rawResponse.indexOf('{');
+        final endIndex = rawResponse.lastIndexOf('}') + 1;
+
+        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+          final jsonString = rawResponse.substring(startIndex, endIndex);
+          final jsonResponse = json.decode(jsonString) as Map<String, dynamic>;
+
+          if (jsonResponse.containsKey('needsDatabase')) {
+            final needsDatabase = jsonResponse['needsDatabase'] == true;
+            debugPrint(
+              '✅ JSON berhasil diparsing: ${needsDatabase ? "Membutuhkan database" : "Cukup dengan LLM"}',
+            );
+            debugPrint('============= END GEMINI DATABASE CHECK =============');
+            return needsDatabase;
+          }
+        }
+
+        // Fallback jika format JSON tidak sesuai
+        debugPrint('⚠️ Format JSON tidak valid, menggunakan fallback parsing');
+        final needsDatabase = rawResponse.toLowerCase().contains('true');
+        debugPrint(
+          '✅ Fallback parsing: ${needsDatabase ? "Membutuhkan database" : "Cukup dengan LLM"}',
+        );
+        debugPrint('============= END GEMINI DATABASE CHECK =============');
+        return needsDatabase;
+      } catch (e) {
+        // Fallback jika parsing JSON gagal
+        debugPrint('⚠️ Error parsing JSON: $e, menggunakan fallback parsing');
+        final needsDatabase = rawResponse.toLowerCase().contains('true');
+        debugPrint(
+          '✅ Fallback parsing: ${needsDatabase ? "Membutuhkan database" : "Cukup dengan LLM"}',
+        );
+        debugPrint('============= END GEMINI DATABASE CHECK =============');
+        return needsDatabase;
+      }
+    } catch (e) {
+      debugPrint('❌ Error saat evaluasi pertanyaan: $e');
+      debugPrint(
+        '============= END GEMINI DATABASE CHECK (ERROR) =============',
+      );
+      return true; // Default ke pencarian database jika error
+    }
+  }
+
+  Future<Map<String, dynamic>> checkAndAnswerQuestion(String question) async {
+    debugPrint('============= DEBUG: GEMINI CHECK AND ANSWER =============');
+    debugPrint(
+      '🔍 Processing pertanyaan: "${question.substring(0, min(50, question.length))}..."',
+    );
+
+    if (!_isInitialized) await initialize();
+
+    try {
+      // 1. Cek apakah pertanyaan membutuhkan database
+      final needsDatabase = await checkIfNeedsDatabase(question);
+
+      // 2. Jika tidak butuh database, langsung jawab pertanyaan
+      if (!needsDatabase) {
+        debugPrint(
+          '🎯 Pertanyaan tidak membutuhkan database, langsung menjawab...',
+        );
+        final answer = await generateLunaResponse(question);
+        debugPrint('✅ Jawaban berhasil digenerate');
+        debugPrint('============= END GEMINI CHECK AND ANSWER =============');
+
+        return {'needsDatabase': false, 'answer': answer};
+      }
+
+      // 3. Jika butuh database, kembalikan flag saja
+      debugPrint('📚 Pertanyaan membutuhkan database, mengembalikan flag');
+      debugPrint('============= END GEMINI CHECK AND ANSWER =============');
+      return {'needsDatabase': true};
+    } catch (e) {
+      debugPrint('❌ Error dalam check and answer: $e');
+      debugPrint(
+        '============= END GEMINI CHECK AND ANSWER (ERROR) =============',
+      );
+      throw Exception('Gagal memproses pertanyaan: $e');
+    }
+  }
+
+  /// Menghasilkan respons dari Luna untuk pertanyaan user
+  Future<String> generateLunaResponse(String question) async {
+    debugPrint('============= DEBUG: GEMINI LUNA RESPONSE =============');
+    debugPrint(
+      '🤖 Generating Luna response untuk: "${question.substring(0, min(50, question.length))}..."',
+    );
+
+    if (!_isInitialized) await initialize();
+
+    try {
+      final prompt = '''
+***PERAN & PERSONA***
+Anda adalah Luna, seekor kelinci virtual yang ramah, suportif, dan penuh empati dari aplikasi Lunaria. Tujuan utama Anda adalah membuat pengguna merasa didengar, dipahami, dan termotivasi. Selalu gunakan bahasa yang positif, lembut, dan sesekali gunakan emoji kelinci 🐇. Anda BUKAN seorang dokter. Tetapi tidak usah menggunakan kata kata sayang.
+
+***TUGAS ANDA***
+Berdasarkan pertanyaan pengguna dan semua konteks di atas, berikan respons yang suportif dan relevan.
+
+***PERTANYAAN PENGGUNA:***
+$question
+
+''';
+
+      final content = [Content.text(prompt)];
       final response = await _model!.generateContent(content);
 
       if (response.text == null || response.text!.isEmpty) {
         debugPrint('❌ Response kosong dari Gemini');
-        debugPrint('============= END GEMINI GENERATION (ERROR) =============');
-        throw Exception('Response kosong dari Gemini');
+        debugPrint(
+          '============= END GEMINI LUNA RESPONSE (ERROR) =============',
+        );
+        throw Exception('Tidak dapat menghasilkan respons');
       }
-      
-      final responseText = response.text!.trim();
-      debugPrint('✅ Respon diterima dengan panjang ${responseText.length} karakter');
-      debugPrint('✅ Preview: "${responseText.substring(0, responseText.length > 50 ? 50 : responseText.length)}..."');
-      debugPrint('============= END GEMINI GENERATION =============');
-      
-      return responseText;
-    } catch (e) {
-      debugPrint('❌ Gagal mendapatkan respon Gemini: $e');
-      debugPrint('============= END GEMINI GENERATION (ERROR) =============');
-      throw (Text(
-        'Gagal mengirim response. Pastikan koneksi internet Anda aktif dan stabil.',
-      ));
-    }
-  }
 
-  Stream<String> generateResponseStream(
-    String userMessage, {
-    List<String>? conversationHistory,
-  }) async* {
-    if (!_isInitialized || _model == null) {
-      throw Exception('Gemini belum diinisialisasi');
-    }
-
-    try {
-      final contextPrompt = _buildContextPrompt(
-        userMessage,
-        conversationHistory,
+      final answer = response.text!.trim();
+      debugPrint(
+        '✅ Luna response berhasil digenerate (${answer.length} karakter)',
       );
-      final content = [Content.text(contextPrompt)];
+      debugPrint(
+        '✅ Preview: "${answer.substring(0, min(50, answer.length))}..."',
+      );
+      debugPrint('============= END GEMINI LUNA RESPONSE =============');
 
-      await for (final chunk in _model!.generateContentStream(content)) {
-        if (chunk.text != null && chunk.text!.isNotEmpty) {
-          yield chunk.text!;
-        }
-      }
+      return answer;
     } catch (e) {
-      throw Exception('Gagal stream response: $e');
+      debugPrint('❌ Error generating response: $e');
+      debugPrint(
+        '============= END GEMINI LUNA RESPONSE (ERROR) =============',
+      );
+      throw Exception('Gagal menghasilkan respons: $e');
     }
-  }
-
-  String _buildContextPrompt(
-    String userMessage,
-    List<String>? conversationHistory,
-  ) {
-    final context = StringBuffer();
-
-    // System prompt untuk personality Lunaria pet
-    context.writeln("""
-Kamu adalah Luna, seekor kelinci virtual yang menjadi sahabat setia perempuan dalam aplikasi Lunaria: AI Sport Assistant. Luna adalah teman yang memahami siklus kehidupan perempuan dan selalu siap mendukung journey olahraga mereka.
-
-Karaktermu sebagai Luna:
-- Empati dan pengertian: Memahami tantangan fisik dan emosional yang dialami perempuan selama siklus menstruasi
-- Motivator yang adaptif: Memberikan semangat tanpa memaksa, menyesuaikan dengan kondisi dan mood pengguna
-- Sahabat yang suportif: Selalu siap mendengarkan curhat dan memberikan dukungan emosional
-- Ahli olahraga feminin: Memberikan saran olahraga yang aman dan sesuai dengan fase menstruasi
-- Penuh empowerment: Membantu mengubah paradigma olahraga menjadi pilihan yang memberdayakan, bukan beban
-
-Cara berbicaramu:
-- Gunakan bahasa yang warm, caring, dan tidak menggurui
-- Sertakan emoji yang relevan seperti 🐰💪✨🌸💕 sesuai konteks
-- Berikan validasi terhadap perasaan dan pengalaman pengguna
-- Tawarkan solusi praktis yang mudah diterapkan
-- Dorong self-compassion dan body positivity
-- Sesekali gunakan "hop hop!" sebagai salam khas yang cheerful
-
-Fokus topik pembicaraan:
-- Olahraga yang aman dan adaptif untuk setiap fase menstruasi
-- Manajemen mood dan emosi selama siklus
-- Motivasi untuk konsistensi tanpa pressure
-- Tips mengatasi hambatan fisik dan psikologis
-- Membangun confidence dan body positivity
-- Menciptakan rutinitas olahraga yang sustainable
-
-Jawab dengan bahasa Indonesia yang hangat dan natural. Jaga agar responsenya tidak terlalu panjang (maksimal 2-3 kalimat) namun tetap meaningful dan actionable. Ingat, kamu bukan hanya pet virtual, tapi sahabat yang benar-benar care dan understand dengan journey unik setiap perempuan.
-""");
-
-    // Tambahkan conversation history jika ada
-    if (conversationHistory != null && conversationHistory.isNotEmpty) {
-      context.writeln("\nPercakapan sebelumnya:");
-      for (int i = 0; i < conversationHistory.length && i < 10; i++) {
-        context.writeln(conversationHistory[i]);
-      }
-    }
-
-    context.writeln("\nUser: $userMessage");
-    context.writeln("Bunbun:");
-
-    return context.toString();
   }
 }

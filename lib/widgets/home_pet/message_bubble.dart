@@ -88,31 +88,41 @@ class MessageBubble extends StatelessWidget {
                               message!.text,
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: message!.isUser ? 12 : 14, // Sesuai Figma
+                                fontSize:
+                                    message!.isUser ? 12 : 14, // Sesuai Figma
                                 fontWeight: FontWeight.w400,
                                 height:
-                                    message!.isUser ? 1.83 : 1.57, // Sesuai Figma
+                                    message!.isUser
+                                        ? 1.83
+                                        : 1.57, // Sesuai Figma
                                 letterSpacing: message!.isUser ? -0.4 : -0.4,
                                 color:
-                                    message!.isUser ? Colors.white : Colors.black,
+                                    message!.isUser
+                                        ? Colors.white
+                                        : Colors.black,
                               ),
                             ),
-                            
+
                             // Tampilkan indikator sumber untuk pesan non-user
                             if (!message!.isUser)
                               Padding(
                                 padding: const EdgeInsets.only(top: 6.0),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: message!.isFromDatabase 
-                                        ? Colors.green.withOpacity(0.1)
-                                        : Colors.blue.withOpacity(0.1),
+                                    color:
+                                        message!.isFromDatabase
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.blue.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: message!.isFromDatabase
-                                          ? Colors.green.withOpacity(0.3)
-                                          : Colors.blue.withOpacity(0.3),
+                                      color:
+                                          message!.isFromDatabase
+                                              ? Colors.green.withOpacity(0.3)
+                                              : Colors.blue.withOpacity(0.3),
                                       width: 1,
                                     ),
                                   ),
@@ -120,21 +130,27 @@ class MessageBubble extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        message!.isFromDatabase ? Icons.storage : Icons.psychology,
+                                        message!.isFromDatabase
+                                            ? Icons.storage
+                                            : Icons.psychology,
                                         size: 10,
-                                        color: message!.isFromDatabase 
-                                            ? Colors.green.shade700 
-                                            : Colors.blue.shade700,
+                                        color:
+                                            message!.isFromDatabase
+                                                ? Colors.green.shade700
+                                                : Colors.blue.shade700,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        message!.isFromDatabase ? "Database" : "AI",
+                                        message!.isFromDatabase
+                                            ? "Database"
+                                            : "AI",
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w500,
-                                          color: message!.isFromDatabase
-                                              ? Colors.green.shade700
-                                              : Colors.blue.shade700,
+                                          color:
+                                              message!.isFromDatabase
+                                                  ? Colors.green.shade700
+                                                  : Colors.blue.shade700,
                                         ),
                                       ),
                                     ],

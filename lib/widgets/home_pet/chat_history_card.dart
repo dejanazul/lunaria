@@ -21,15 +21,6 @@ class ChatHistoryCard extends StatefulWidget {
 class _ChatHistoryCardState extends State<ChatHistoryCard> {
   final _scrollController = ScrollController();
 
-  // Quick chat options sesuai Figma
-  final List<String> _quickChatOptions = [
-    "I'm happy to see you too!",
-    "Ok, what can we do today?",
-    "Let's play, Bunny!",
-    "I missed you!",
-    "Surprise me!!! ✨",
-  ];
-
   void _autoScrollToBottom() {
     if (!_scrollController.hasClients) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -39,20 +30,6 @@ class _ChatHistoryCardState extends State<ChatHistoryCard> {
         curve: Curves.easeOut,
       );
     });
-  }
-
-  void _sendQuickMessage(String message) {
-    final chatProvider = Provider.of<ChatHistoryProvider>(
-      context,
-      listen: false,
-    );
-    chatProvider.sendMessageToGemini(message);
-
-    // Navigate to full chat room
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ChatRoom()),
-    );
   }
 
   @override

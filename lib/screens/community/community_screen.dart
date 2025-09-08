@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
-import '../../constants/app_colors.dart';
 import 'addfriend.dart';
 import 'message.dart';
 import 'communitydetail.dart';
