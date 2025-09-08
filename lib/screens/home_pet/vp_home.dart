@@ -88,7 +88,35 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                         ResponsiveHelper.getSafeAreaTop(context) +
                         ResponsiveHelper.getMediumSpacing(context),
                     left: ResponsiveHelper.getScreenWidth(context) * 0.39,
-                    child: _buildCookieCounter(),
+                    child: Row(
+                      children: [
+                        _buildCookieCounter(),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(RouteNames.buyCookies);
+                          },
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2D6BA),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFF553F35),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              size: 16,
+                              color: Color(0xFF553F35),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
                   // // Settings button
@@ -163,11 +191,34 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
   }
 
   Widget _buildLevelIndicator() {
-    return const LevelIndicator();
+    return LevelIndicator(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('XP +10! Terus berlatih untuk naik level!'),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildCookieCounter() {
-    return const CookieCounter();
+    return CookieCounter(
+      onTap: () {
+        // Tambahkan cookie seperti biasa
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Cookie +1! Kumpulkan untuk memberi makan hewan peliharaan!',
+            ),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      },
+    );
   }
 
   // Widget _buildSettingsButton() {
@@ -204,6 +255,9 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
 
     final provider = Provider.of<ChatHistoryProvider>(context, listen: false);
     _chatController.clear();
+
+    
+
     await provider.sendMessageToGemini(text);
   }
 }

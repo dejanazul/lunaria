@@ -42,3 +42,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Tambahkan dependensi SplashScreen API
+    implementation("androidx.core:core-splashscreen:1.0.1")
+}

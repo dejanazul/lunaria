@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/screens/profile/profile_screen.dart';
 import 'route_names.dart';
 import 'route_generator.dart';
 import '../screens/calendar/calendar_screen.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
 import '../screens/community/community_screen.dart';
-import '../screens/profile/profile_screen.dart';
 
 /// Service untuk menangani semua navigasi dalam aplikasi
 class NavigationService {
@@ -106,4 +106,6 @@ class NavigationService {
   static Future<dynamic> navigateToLogin() => navigateToRoute(RouteNames.login);
   static Future<dynamic> navigateToSignup() =>
       navigateToRoute(RouteNames.signup);
+  static Future<dynamic> navigateToBuyCookies() =>
+      navigateToRoute(RouteNames.buyCookies);
 }

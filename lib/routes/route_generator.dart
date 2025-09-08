@@ -3,6 +3,7 @@ import 'route_names.dart';
 import '../screens/calendar/calendar_screen.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
+import '../screens/home_pet/buy_cookies.dart';
 import '../screens/community/community_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../authentication/login.dart';
@@ -27,6 +28,8 @@ class RouteGenerator {
         return _createRoute(const LoginScreen());
       case RouteNames.signup:
         return _createRoute(const SignUpScreen());
+      case RouteNames.buyCookies:
+        return _createRoute(BuyCookiesScreen());
       default:
         return _createRoute(const VPHomeScreen()); // Default ke home
     }

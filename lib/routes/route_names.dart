@@ -7,6 +7,7 @@ class RouteNames {
   static const String profile = '/profile';
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String buyCookies = '/buy-cookies';
 }
 
 /// Kelas untuk mendefinisikan index navigasi bottom nav

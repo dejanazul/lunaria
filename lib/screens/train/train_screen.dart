@@ -3,6 +3,7 @@ import 'steps_screen.dart';
 import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
+import '../../routes/route_names.dart';
 import './trainer_screen.dart';
 import 'sport_articles.dart';
 import '../../services/news_api_service.dart';
@@ -395,7 +396,6 @@ class _TrainScreenState extends State<TrainScreen>
     );
   }
 
-  int _currentIndex = 1;
   late TabController _tabController;
 
   Widget _summaryItem({
@@ -469,6 +469,24 @@ class _TrainScreenState extends State<TrainScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+      bottomNavigationBar: BottomNav(
+        currentIndex: 1, // Train tab index
+        onTap: (index) {
+          if (index != 1) {
+            // Navigasi ke halaman sesuai dengan index bottom nav
+            Navigator.pushReplacementNamed(
+              context,
+              index == 0
+                  ? RouteNames.calendar
+                  : index == 2
+                  ? RouteNames.home
+                  : index == 3
+                  ? RouteNames.community
+                  : RouteNames.profile,
+            );
+          }
+        },
+      ),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
         child: Container(
@@ -504,6 +522,8 @@ class _TrainScreenState extends State<TrainScreen>
         ),
       ),
       body: SafeArea(
+        bottom:
+            false, // Karena bottomNavigationBar sudah memiliki padding sendiri
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -688,6 +708,9 @@ class _TrainScreenState extends State<TrainScreen>
                 ),
                 // Sport Article Section
                 _sportArticleSection(),
+
+                // Padding bawah untuk menghindari konten tertutup oleh bottom nav
+                SizedBox(height: 80),
               ],
             ),
           ),

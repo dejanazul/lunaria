@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../services/gemini_service.dart';
 import '../services/api_key_service.dart';
+import '../services/question_answering_service.dart';
 
 enum ChatState { idle, loading, error, needsApiKey }
 
@@ -9,6 +10,7 @@ class ChatHistoryProvider extends ChangeNotifier {
   final List<ChatMessage> _chatHistory = [];
   bool _isHistoryVisible = false;
   final GeminiService _geminiService = GeminiService();
+  final QuestionAnsweringService _qaService = QuestionAnsweringService();
   ChatState _chatState = ChatState.idle;
   String? _errorMessage;
 
@@ -98,17 +100,21 @@ class ChatHistoryProvider extends ChangeNotifier {
       // Prepare conversation history
       final conversationHistory = _buildConversationHistory();
 
-      // Get AI response
-      final aiResponse = await _geminiService.generateResponse(
+      // Get AI response dengan metode hybrid (similarity search + LLM)
+      final response = await _qaService.getAnswer(
         userMessage,
         conversationHistory: conversationHistory,
       );
+
+      final String aiResponse = response['answer'];
+      final bool isFromDatabase = response['isFromDatabase'];
 
       // Add AI response
       final aiMessage = ChatMessage(
         text: aiResponse,
         isUser: false,
         timestamp: DateTime.now(),
+        isFromDatabase: isFromDatabase,
       );
       addMessage(aiMessage);
 

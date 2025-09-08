@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'api_key_service.dart';
 
@@ -18,7 +19,7 @@ class GeminiService {
         model: 'gemini-1.5-flash-latest',
         apiKey: apiKey,
         generationConfig: GenerationConfig(
-          temperature: 0.7,
+          temperature: 0.5,
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 1024,
@@ -48,7 +49,14 @@ class GeminiService {
     String userMessage, {
     List<String>? conversationHistory,
   }) async {
+    debugPrint('============= DEBUG: GEMINI GENERATION =============');
+    debugPrint('💬 Permintaan ke Gemini untuk message: "${userMessage.substring(0, userMessage.length > 50 ? 50 : userMessage.length)}..."');
+    debugPrint('💬 History tersedia: ${conversationHistory != null ? conversationHistory.length : 0} pesan');
+    debugPrint('💬 Model: gemini-1.5-flash-latest');
+    
     if (!_isInitialized || _model == null) {
+      debugPrint('❌ Gemini belum diinisialisasi');
+      debugPrint('============= END GEMINI GENERATION (ERROR) =============');
       throw Exception('Gemini belum diinisialisasi');
     }
 
@@ -63,12 +71,23 @@ class GeminiService {
       final response = await _model!.generateContent(content);
 
       if (response.text == null || response.text!.isEmpty) {
+        debugPrint('❌ Response kosong dari Gemini');
+        debugPrint('============= END GEMINI GENERATION (ERROR) =============');
         throw Exception('Response kosong dari Gemini');
       }
-
-      return response.text!.trim();
+      
+      final responseText = response.text!.trim();
+      debugPrint('✅ Respon diterima dengan panjang ${responseText.length} karakter');
+      debugPrint('✅ Preview: "${responseText.substring(0, responseText.length > 50 ? 50 : responseText.length)}..."');
+      debugPrint('============= END GEMINI GENERATION =============');
+      
+      return responseText;
     } catch (e) {
-      throw Exception('Gagal generate response: $e');
+      debugPrint('❌ Gagal mendapatkan respon Gemini: $e');
+      debugPrint('============= END GEMINI GENERATION (ERROR) =============');
+      throw (Text(
+        'Gagal mengirim response. Pastikan koneksi internet Anda aktif dan stabil.',
+      ));
     }
   }
 
