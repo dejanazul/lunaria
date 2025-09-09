@@ -6,13 +6,20 @@ class ApiKeyService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
+  // // Kunci untuk menyimpan API key di secure storage
+  // static const String _geminiApiKeyKey =
+  //     'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
+
+  // static const String _geminiApiKeyKey =
+  //   'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
+
   // Kunci untuk menyimpan API key di secure storage
   static const String _geminiApiKeyKey =
-      'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
+      'AIzaSyCbmFeLEOciRSBz_NaII-e7j1dtp_qgpVM';
 
   // API Key default yang hardcoded
   static const String _defaultApiKey =
-      'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
+      'AIzaSyCbmFeLEOciRSBz_NaII-e7j1dtp_qgpVM';
 
   static Future<void> saveGeminiApiKey(String apiKey) async {
     await _storage.write(key: _geminiApiKeyKey, value: apiKey);

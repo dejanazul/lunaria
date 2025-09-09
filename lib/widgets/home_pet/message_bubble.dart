@@ -84,9 +84,9 @@ class MessageBubble extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            _buildFormattedText(
                               message!.text,
-                              style: TextStyle(
+                              TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize:
                                     message!.isUser ? 12 : 14, // Sesuai Figma
@@ -102,61 +102,6 @@ class MessageBubble extends StatelessWidget {
                                         : Colors.black,
                               ),
                             ),
-
-                            // Tampilkan indikator sumber untuk pesan non-user
-                            if (!message!.isUser)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        message!.isFromDatabase
-                                            ? Colors.green.withOpacity(0.1)
-                                            : Colors.blue.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color:
-                                          message!.isFromDatabase
-                                              ? Colors.green.withOpacity(0.3)
-                                              : Colors.blue.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        message!.isFromDatabase
-                                            ? Icons.storage
-                                            : Icons.psychology,
-                                        size: 10,
-                                        color:
-                                            message!.isFromDatabase
-                                                ? Colors.green.shade700
-                                                : Colors.blue.shade700,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        message!.isFromDatabase
-                                            ? "Database"
-                                            : "AI",
-                                        style: TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w500,
-                                          color:
-                                              message!.isFromDatabase
-                                                  ? Colors.green.shade700
-                                                  : Colors.blue.shade700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
@@ -226,6 +171,57 @@ class MessageBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Membangun teks dengan format bold untuk teks yang dibungkus dengan *
+  Widget _buildFormattedText(String text, TextStyle baseStyle) {
+    // Regex untuk mendeteksi teks yang dibungkus dengan *
+    final RegExp boldPattern = RegExp(r'\*(.*?)\*');
+
+    // Split teks menjadi bagian-bagian sesuai format
+    final List<TextSpan> spans = [];
+
+    // Posisi saat ini dalam string
+    int currentPosition = 0;
+
+    // Temukan semua kecocokan format bold
+    for (final match in boldPattern.allMatches(text)) {
+      // Tambahkan teks normal sebelum format bold
+      if (match.start > currentPosition) {
+        spans.add(
+          TextSpan(
+            text: text.substring(currentPosition, match.start),
+            style: baseStyle,
+          ),
+        );
+      }
+
+      // Tambahkan teks yang di-bold (hapus tanda *)
+      final boldText = match.group(1)!;
+      spans.add(
+        TextSpan(
+          text: boldText,
+          style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+        ),
+      );
+
+      // Perbarui posisi saat ini
+      currentPosition = match.end;
+    }
+
+    // Tambahkan teks yang tersisa setelah format terakhir (jika ada)
+    if (currentPosition < text.length) {
+      spans.add(
+        TextSpan(text: text.substring(currentPosition), style: baseStyle),
+      );
+    }
+
+    // Jika tidak ada format yang ditemukan, kembalikan teks asli
+    if (spans.isEmpty) {
+      spans.add(TextSpan(text: text, style: baseStyle));
+    }
+
+    return RichText(text: TextSpan(children: spans));
   }
 }
 

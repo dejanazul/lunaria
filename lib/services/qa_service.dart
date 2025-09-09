@@ -31,18 +31,14 @@ class QAService {
       if (checkResult['needsDatabase'] == false) {
         debugPrint('✅ Mendapatkan jawaban langsung dari LLM');
         debugPrint('============= END QA SERVICE =============');
-        return {
-          'answer': checkResult['answer'],
-          'source': 'ai',
-          'used_database': false,
-        };
+        return {'answer': checkResult['answer'], 'used_database': false};
       }
 
       // 3. Jika butuh database, lakukan text embedding
       debugPrint(
         '📚 Pertanyaan membutuhkan database, melakukan text embedding...',
       );
-      final embeddings = await TextEmbedService.getEmbedding(question);
+      final embeddings = await _textEmbedService.getEmbedding(question);
       debugPrint('HASIL EMBEDDING: $embeddings');
 
       if (embeddings.isEmpty) {
@@ -54,7 +50,6 @@ class QAService {
 
         return {
           'answer': fallbackAnswer,
-          'source': 'ai',
           'used_database': false,
           'error': 'embedding_failed',
         };
@@ -64,50 +59,72 @@ class QAService {
       debugPrint(
         '✅ Embedding berhasil dibuat dengan ${embeddings.length} dimensi',
       );
-      debugPrint('✅ Mengembalikan respons sementara tentang embedding');
-      debugPrint('============= END QA SERVICE =============');
+      debugPrint('🔍 Melakukan similarity search di Supabase...');
+      try {
+        final searchResults = await _supabaseService.similaritySearch(
+          query: question,
+          embeddings: embeddings,
+          matchThreshold: 0.7, // Sesuaikan threshold sesuai kebutuhan
+          matchCount: 5,
+        );
+        debugPrint(
+          '✅ Similarity search selesai. Ditemukan ${searchResults.length} hasil',
+        );
 
-      final tempAnswer = await _geminiService.generateLunaResponse(
-        "Saya telah mengidentifikasi bahwa pertanyaan Anda membutuhkan data dari database. " +
-            "Text embedding telah berhasil dibuat dengan ${embeddings.length} dimensi. " +
-            "Saya sedang mencari informasi yang relevan untuk menjawab pertanyaan Anda.",
-      );
+        if (searchResults.isEmpty) {
+          // Jika tidak ada hasil yang ditemukan
+          debugPrint('⚠️ Tidak ada hasil yang ditemukan di database');
+          final noResultAnswer = await _geminiService.generateLunaResponse(
+            "Saya telah melakukan research terkait pertanyaan Anda tentang '${question}', " +
+                "tetapi tidak menemukan informasi yang relevan pada database saya. " +
+                "Saya akan mencoba menjawab berdasarkan pengetahuan umum saya.",
+          );
 
-      return {
-        'answer': tempAnswer,
-        'source': 'processing',
-        'used_database': true,
-        'embedding_length': embeddings.length,
-      };
+          return {
+            'answer': noResultAnswer,
+            'used_database': true,
+            'search_results': 0,
+          };
+        }
+
+        for (int i = 0; i < searchResults.length && i < 2; i++) {
+          final doc = searchResults[i];
+          final title = doc['title'] ?? 'Untitled';
+          final similarity = doc['similarity']?.toStringAsFixed(4) ?? 'N/A';
+          debugPrint('📄 Result #${i + 1}: "$title" (Similarity: $similarity)');
+        }
+
+        // Gunakan hasil pencarian untuk menghasilkan jawaban yang ditingkatkan
+        debugPrint('🤖 Menghasilkan jawaban berdasarkan hasil database...');
+        final databaseAnswer = await _geminiService
+            .generateResponseWithDatabaseContent(question, searchResults);
+
+        return {
+          'answer': databaseAnswer,
+          'source': 'database',
+          'used_database': true,
+          'search_results': searchResults.length,
+          'raw_results': searchResults,
+        };
+      } catch (e) {
+        debugPrint('❌ Error saat similarity search: $e');
+        final errorAnswer = await _geminiService.generateLunaResponse(
+          "Maaf, saya mengalami kendala teknis saat mencari di database. " +
+              "Saya akan mencoba menjawab pertanyaan Anda berdasarkan pengetahuan umum saya.",
+        );
+
+        return {
+          'answer': errorAnswer,
+          'source': 'ai',
+          'used_database': true,
+          'error': 'search_failed',
+          'error_message': e.toString(),
+        };
+      }
     } catch (e) {
       debugPrint('❌ Error in QA service: $e');
       debugPrint('============= END QA SERVICE (ERROR) =============');
       throw Exception('Gagal memproses pertanyaan: $e');
     }
-  }
-
-  /// Membangun context dari hasil search Supabase (untuk implementasi RAG nanti)
-  String _buildContextFromResults(List<Map<String, dynamic>> results) {
-    // Existing implementation...
-    if (results.isEmpty) return '';
-
-    final buffer = StringBuffer();
-    buffer.writeln('Berikut adalah informasi dari database yang relevan:');
-    buffer.writeln();
-
-    for (int i = 0; i < results.length; i++) {
-      final doc = results[i];
-      final title = doc['title'] ?? 'Dokumen ${i + 1}';
-      final content = doc['content'] ?? '';
-      final similarity = doc['similarity']?.toStringAsFixed(2) ?? 'N/A';
-
-      buffer.writeln('---');
-      buffer.writeln('DOKUMEN: $title (Relevansi: $similarity)');
-      buffer.writeln('ISI: $content');
-      buffer.writeln('---');
-      buffer.writeln();
-    }
-
-    return buffer.toString();
   }
 }

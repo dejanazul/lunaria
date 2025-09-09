@@ -78,6 +78,7 @@ Database Lunaria berisi informasi tentang topik-topik berikut:
 12. Topik tentang fase Menstrual, Follicular, Ovulation, Luteal.
 13. Topik tentang medical disclaimer.
 14. Apa yang harus dilakukan pengguna jika sedang menstruasi.
+15. Topik tentang rekomendasi olahraga
 
 Jika pertanyaan berkaitan dengan salah satu topik di atas, jawab "true". Jika pertanyaan bersifat umum dan tidak memerlukan informasi spesifik dari database, jawab "false".
 
@@ -201,7 +202,10 @@ Pertanyaan: "$question"
     try {
       final prompt = '''
 ***PERAN & PERSONA***
-Anda adalah Luna, seekor kelinci virtual yang ramah, suportif, dan penuh empati dari aplikasi Lunaria. Tujuan utama Anda adalah membuat pengguna merasa didengar, dipahami, dan termotivasi. Selalu gunakan bahasa yang positif, lembut, dan sesekali gunakan emoji kelinci 🐇. Anda BUKAN seorang dokter. Tetapi tidak usah menggunakan kata kata sayang.
+Anda adalah Luna, seekor kelinci virtual yang ramah, suportif, dan penuh empati dari aplikasi Lunaria. 
+Tujuan utama Anda adalah membuat pengguna merasa didengar, dipahami, dan termotivasi. 
+Selalu gunakan bahasa yang positif, lembut, dan sesekali gunakan emoji kelinci 🐇. 
+Anda BUKAN seorang dokter. tidak usah menggunakan kata kata sayang tetapi tetap supportif.
 
 ***TUGAS ANDA***
 Berdasarkan pertanyaan pengguna dan semua konteks di atas, berikan respons yang suportif dan relevan.
@@ -238,6 +242,84 @@ $question
         '============= END GEMINI LUNA RESPONSE (ERROR) =============',
       );
       throw Exception('Gagal menghasilkan respons: $e');
+    }
+  }
+
+  /// Menghasilkan respons dari Luna untuk pertanyaan berdasarkan hasil pencarian database
+  Future<String> generateResponseWithDatabaseContent(
+    String question,
+    List<Map<String, dynamic>> searchResults,
+  ) async {
+    debugPrint('============= DEBUG: GEMINI WITH DATABASE =============');
+    debugPrint(
+      '🤖 Generating response dengan database untuk: "${question.substring(0, min(50, question.length))}..."',
+    );
+    debugPrint('📚 Menggunakan ${searchResults.length} hasil pencarian');
+
+    if (!_isInitialized) await initialize();
+
+    try {
+      // Ekstrak konten dari hasil pencarian
+      final List<String> contexts = [];
+      for (var doc in searchResults) {
+        if (doc['content'] != null) {
+          final content = doc['content'].toString();
+          contexts.add(content);
+        }
+      }
+
+      final contextStr = contexts.join('\n\n');
+      debugPrint('📄 Total konteks: ${contextStr.length} karakter');
+
+      final prompt = '''
+***PERAN & PERSONA***
+Anda adalah Luna, seekor kelinci virtual yang ramah, suportif, dan penuh empati dari aplikasi Lunaria. 
+Tujuan utama Anda adalah membuat pengguna merasa didengar, dipahami, dan termotivasi. 
+Selalu gunakan bahasa yang positif, lembut, dan sesekali gunakan emoji kelinci 🐇. 
+Anda BUKAN seorang dokter. tidak usah menggunakan kata kata sayang tetapi tetap supportif.
+
+***INFORMASI DATABASE***
+Berikut adalah informasi dari database yang relevan dengan pertanyaan pengguna:
+
+$contextStr
+
+***TUGAS ANDA***
+Berdasarkan pertanyaan pengguna dan informasi dari database di atas,
+sederhanakan bahasa dari database sehingga mudah dimengerti oleh pengguna.
+bungkus informasi dari database sehingga enak dibaca oleh pengguna dan tetap 
+terkesan ramah. Jawaban tidak harus terlalu panjang, yang penting to the point 
+dan informasi dari database tersampaikan dengan baik.
+
+***PERTANYAAN PENGGUNA:***
+$question
+
+''';
+
+      final content = [Content.text(prompt)];
+      final response = await _model!.generateContent(content);
+
+      if (response.text == null || response.text!.isEmpty) {
+        debugPrint('❌ Response kosong dari Gemini');
+        debugPrint(
+          '============= END GEMINI WITH DATABASE (ERROR) =============',
+        );
+        throw Exception('Tidak dapat menghasilkan respons');
+      }
+
+      final answer = response.text!.trim();
+      debugPrint('✅ Response berhasil digenerate (${answer.length} karakter)');
+      debugPrint(
+        '✅ Preview: "${answer.substring(0, min(50, answer.length))}..."',
+      );
+      debugPrint('============= END GEMINI WITH DATABASE =============');
+
+      return answer;
+    } catch (e) {
+      debugPrint('❌ Error generating response with database: $e');
+      debugPrint(
+        '============= END GEMINI WITH DATABASE (ERROR) =============',
+      );
+      throw Exception('Gagal menghasilkan respons dengan database: $e');
     }
   }
 }

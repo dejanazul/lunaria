@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TextEmbedService {
-  static const String apiKey = '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';
+  static const String apiKey = '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';
 
   static const String apiUrl =
       "https://router.huggingface.co/hf-inference/models/LazarusNLP/all-indo-e5-small-v4/pipeline/feature-extraction";
 
-  static Future<List<double>> getEmbedding(String input) async {
+   Future<List<double>> getEmbedding(String input) async {
     debugPrint('============= DEBUG: TEXT EMBEDDING =============');
     debugPrint(
       '📝 Mulai proses embedding teks: "${input.substring(0, input.length > 50 ? 50 : input.length)}..."',

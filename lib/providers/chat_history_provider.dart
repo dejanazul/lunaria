@@ -102,15 +102,12 @@ class ChatHistoryProvider extends ChangeNotifier {
 
       // Mengekstrak data dari hasil
       final answer = qaResult['answer'] as String;
-      final source = qaResult['source'] as String;
-      final usedDatabase = qaResult['used_database'] as bool;
 
       // Add AI response
       final aiMessage = ChatMessage(
         text: answer,
         isUser: false,
         timestamp: DateTime.now(),
-        isFromDatabase: usedDatabase,
       );
       addMessage(aiMessage);
 
@@ -133,24 +130,6 @@ class ChatHistoryProvider extends ChangeNotifier {
     }
   }
 
-  List<String> _buildConversationHistory() {
-    // Ambil 5 pesan terakhir untuk context - sekarang pesan terakhir di akhir list
-    final int count = _chatHistory.length;
-    final startIndex = count >= 5 ? count - 5 : 0;
-    final recentMessages = _chatHistory.sublist(startIndex);
-
-    final history = <String>[];
-
-    for (final message in recentMessages) {
-      if (message.isUser) {
-        history.add("User: ${message.text}");
-      } else {
-        history.add("Bunbun: ${message.text}");
-      }
-    }
-
-    return history;
-  }
 
   Future<void> setupApiKey(String apiKey) async {
     try {
