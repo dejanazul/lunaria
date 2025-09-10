@@ -5,7 +5,7 @@ import '../../widgets/bottom_nav.dart';
 import '../../routes/route_names.dart';
 
 class BuyCookiesScreen extends StatelessWidget {
-  BuyCookiesScreen({Key? key}) : super(key: key);
+  BuyCookiesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

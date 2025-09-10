@@ -32,8 +32,8 @@ class NewsApiService {
     final url = Uri.parse(_baseUrl).replace(queryParameters: params);
 
     final response = await http.get(url);
-    print('NewsAPI URL: ' + url.toString());
-    print('NewsAPI response: ' + response.body);
+    print('NewsAPI URL: $url');
+    print('NewsAPI response: ${response.body}');
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['status'] == 'ok' && data['articles'] != null) {

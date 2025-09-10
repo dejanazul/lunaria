@@ -114,7 +114,7 @@ class _TrainScreenState extends State<TrainScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 12,
                             height: barHeight,
                             child: Column(
@@ -732,8 +732,8 @@ class _SportIcon extends StatelessWidget {
     required this.label,
     required this.asset,
     required this.tag,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

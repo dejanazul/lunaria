@@ -8,7 +8,7 @@ class BirthDatePage extends StatefulWidget {
 }
 
 class _BirthDatePageState extends State<BirthDatePage> {
-  DateTime _selectedDate = DateTime(2000, 5, 20); // default tanggal lahir
+  final DateTime _selectedDate = DateTime(2000, 5, 20); // default tanggal lahir
   DateTime? _editedDate; // kalau user ubah
 
   Future<void> _pickDate() async {

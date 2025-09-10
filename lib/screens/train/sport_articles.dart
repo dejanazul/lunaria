@@ -11,7 +11,7 @@ class SportArticlesScreen extends StatefulWidget {
 
 class _SportArticlesScreenState extends State<SportArticlesScreen> {
   String _search = '';
-  Set<String> _favorites = {};
+  final Set<String> _favorites = {};
   List<Map<String, dynamic>> _articles = [];
   bool _loading = true;
   String? _error;

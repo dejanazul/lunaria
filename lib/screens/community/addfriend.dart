@@ -98,10 +98,10 @@ class _AddfriendState extends State<Addfriend> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ).copyWith(
-                        backgroundColor: MaterialStateProperty.all(
+                        backgroundColor: WidgetStateProperty.all(
                           isFriendAdded ? Colors.purple : Colors.white,
                         ),
-                        foregroundColor: MaterialStateProperty.all(
+                        foregroundColor: WidgetStateProperty.all(
                           isFriendAdded ? Colors.white : Colors.purple,
                         ),
                       ),

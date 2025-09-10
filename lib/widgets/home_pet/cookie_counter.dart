@@ -5,7 +5,7 @@ import '../../providers/cookie_provider.dart';
 class CookieCounter extends StatelessWidget {
   final VoidCallback? onTap;
 
-  const CookieCounter({Key? key, this.onTap}) : super(key: key);
+  const CookieCounter({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {

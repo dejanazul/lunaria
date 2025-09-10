@@ -398,8 +398,8 @@ class _StepsProgressCircle extends StatelessWidget {
     required this.percent,
     required this.steps,
     required this.goal,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +459,7 @@ class _StepsProgressCircle extends StatelessWidget {
 
 class _ArticleCard extends StatelessWidget {
   final Map article;
-  const _ArticleCard({required this.article, Key? key}) : super(key: key);
+  const _ArticleCard({required this.article, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -568,8 +568,8 @@ class _CalendarPopup extends StatelessWidget {
   const _CalendarPopup({
     required this.selectedDate,
     required this.onDateSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   String _monthName(int month) {
     const months = [

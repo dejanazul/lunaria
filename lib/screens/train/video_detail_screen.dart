@@ -7,8 +7,8 @@ class VideoDetailScreen extends StatefulWidget {
   const VideoDetailScreen({
     required this.video,
     required this.onComplete,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<VideoDetailScreen> createState() => _VideoDetailScreenState();

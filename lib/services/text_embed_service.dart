@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TextEmbedService {
-  static const String apiKey = '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';
+  static const String apiKey = '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';
 
   static const String apiUrl =
       "https://router.huggingface.co/hf-inference/models/LazarusNLP/all-indo-e5-small-v4/pipeline/feature-extraction";
@@ -30,7 +30,7 @@ class TextEmbedService {
 
       debugPrint('📊 Response status: ${response.statusCode}');
       debugPrint(
-        '📊 Response body preview: ${response.body.length > 200 ? response.body.substring(0, 200) + "..." : response.body}',
+        '📊 Response body preview: ${response.body.length > 200 ? "${response.body.substring(0, 200)}..." : response.body}',
       );
 
       if (response.statusCode == 200) {

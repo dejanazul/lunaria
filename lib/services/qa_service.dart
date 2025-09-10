@@ -44,8 +44,7 @@ class QAService {
       if (embeddings.isEmpty) {
         debugPrint('⚠️ Gagal membuat embedding, menggunakan fallback response');
         final fallbackAnswer = await _geminiService.generateLunaResponse(
-          "Maaf, saya tidak dapat memproses embedding untuk pertanyaan Anda. " +
-              "Silakan coba lagi atau ajukan pertanyaan dengan cara yang berbeda.",
+          "Maaf, saya tidak dapat memproses embedding untuk pertanyaan Anda. " "Silakan coba lagi atau ajukan pertanyaan dengan cara yang berbeda.",
         );
 
         return {
@@ -75,8 +74,7 @@ class QAService {
           // Jika tidak ada hasil yang ditemukan
           debugPrint('⚠️ Tidak ada hasil yang ditemukan di database');
           final noResultAnswer = await _geminiService.generateLunaResponse(
-            "Saya telah melakukan research terkait pertanyaan Anda tentang '${question}', " +
-                "tetapi tidak menemukan informasi yang relevan pada database saya. " +
+            "Saya telah melakukan research terkait pertanyaan Anda tentang '$question', " "tetapi tidak menemukan informasi yang relevan pada database saya. " +
                 "Saya akan mencoba menjawab berdasarkan pengetahuan umum saya.",
           );
 
@@ -109,8 +107,7 @@ class QAService {
       } catch (e) {
         debugPrint('❌ Error saat similarity search: $e');
         final errorAnswer = await _geminiService.generateLunaResponse(
-          "Maaf, saya mengalami kendala teknis saat mencari di database. " +
-              "Saya akan mencoba menjawab pertanyaan Anda berdasarkan pengetahuan umum saya.",
+          "Maaf, saya mengalami kendala teknis saat mencari di database. " "Saya akan mencoba menjawab pertanyaan Anda berdasarkan pengetahuan umum saya.",
         );
 
         return {

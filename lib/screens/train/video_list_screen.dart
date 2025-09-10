@@ -8,7 +8,7 @@ import '../../constants/app_colors.dart';
 
 class VideoListScreen extends StatefulWidget {
   final String tag;
-  const VideoListScreen({required this.tag, Key? key}) : super(key: key);
+  const VideoListScreen({required this.tag, super.key});
 
   @override
   State<VideoListScreen> createState() => _VideoListScreenState();
@@ -140,8 +140,8 @@ class _VideoCard extends StatelessWidget {
     required this.isUnlocked,
     required this.onUnlock,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
