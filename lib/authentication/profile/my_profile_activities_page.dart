@@ -59,7 +59,6 @@ class _MyProfileActivitiesPageState extends State<MyProfileActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     final canNext = _selected.length >= 3;
-    ;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -243,7 +242,7 @@ class _CircleCheck extends StatelessWidget {
             ? const Color(0xFFE0E0E0)
             : (checked ? AppColors.primary : const Color(0xFFD9D9D9));
 
-    final Color? fill =
+    final Color fill =
         disabled
             ? Colors.transparent
             : (checked ? AppColors.primary : Colors.transparent);

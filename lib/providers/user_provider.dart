@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
@@ -120,69 +121,4 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // New method for completing the signup with all data
-  Future<bool> completeSignUp({
-    required String username,
-    required String email,
-    required String password,
-    String? name,
-    DateTime? birthDate,
-    double? height,
-    double? weight,
-    DateTime? lastCycle,
-    int? cycleDuration,
-    String? fitnessLevel,
-    String? lifestyle,
-    List<String>? preferredActivities,
-  }) async {
-    _status = AuthStatus.authenticating;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final user = await _authService.completeSignUp(
-        username: username,
-        email: email,
-        password: password,
-        name: name,
-        birthDate: birthDate,
-        height: height,
-        weight: weight,
-        lastCycle: lastCycle,
-        cycleDuration: cycleDuration,
-        // fitnessLevel: fitnessLevel,
-        lifestyle: lifestyle,
-        preferredActivities: preferredActivities,
-      );
-
-      if (user != null) {
-        _user = user;
-        _status = AuthStatus.authenticated;
-        notifyListeners();
-        return true;
-      } else {
-        _status = AuthStatus.error;
-        _errorMessage = 'Failed to complete signup';
-        notifyListeners();
-        return false;
-      }
-    } on AuthException catch (e) {
-      _status = AuthStatus.error;
-
-      // Give more user-friendly error messages
-      if (e.message.contains('Email already registered')) {
-        _errorMessage = 'Email sudah terdaftar. Silakan login.';
-      } else {
-        _errorMessage = 'Gagal mendaftar: ${e.message}';
-      }
-
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _status = AuthStatus.error;
-      _errorMessage = e.toString();
-      notifyListeners();
-      return false;
-    }
-  }
 }

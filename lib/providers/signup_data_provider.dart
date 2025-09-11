@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/models/user_model.dart';
+import 'package:lunaria/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+enum AuthStatus {
+  initial,
+  authenticated,
+  unauthenticated,
+  authenticating,
+  error,
+}
 
 class SignupDataProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+
   String? username;
   String? email;
   String? password;
@@ -8,12 +21,21 @@ class SignupDataProvider extends ChangeNotifier {
   DateTime? birthDate;
   double? height;
   double? weight;
-  DateTime? lastCycle;
-  int? cycleDuration;
+  DateTime? startDate;
+  int? periodLength;
   String? fitnessLevel;
   List<String>? preferredActivities;
   String? lifestyle;
   double? bmi;
+
+  UserModel? _user;
+  AuthStatus _status = AuthStatus.initial;
+  String? _errorMessage;
+
+  // Getters
+  UserModel? get user => _user;
+  AuthStatus get status => _status;
+  String? get errorMessage => _errorMessage;
 
   // Helper method to log data after updates
   void _logDebugData(String updatedField, dynamic value) {
@@ -28,8 +50,8 @@ class SignupDataProvider extends ChangeNotifier {
     debugPrint('birthDate: ${birthDate?.toString() ?? 'null'}');
     debugPrint('height: $height');
     debugPrint('weight: $weight');
-    debugPrint('lastCycle: ${lastCycle?.toString() ?? 'null'}');
-    debugPrint('cycleDuration: $cycleDuration');
+    debugPrint('lastCycle: ${startDate?.toString() ?? 'null'}');
+    debugPrint('cycleDuration: $periodLength');
     debugPrint('fitnessLevel: $fitnessLevel');
     debugPrint('preferredActivities: $preferredActivities');
     debugPrint('lifestyle: $lifestyle');
@@ -79,17 +101,17 @@ class SignupDataProvider extends ChangeNotifier {
   }
 
   // Method to update last cycle
-  void updateLastCycle(DateTime lastCycle) {
-    this.lastCycle = lastCycle;
+  void updateLastCycle(DateTime startDate) {
+    this.startDate = startDate;
     notifyListeners();
-    _logDebugData('lastCycle', lastCycle.toString());
+    _logDebugData('lastCycle', startDate.toString());
   }
 
   // Method to update cycle duration
-  void updateCycleDuration(int cycleDuration) {
-    this.cycleDuration = cycleDuration;
+  void updateCycleDuration(int periodLength) {
+    this.periodLength = periodLength;
     notifyListeners();
-    _logDebugData('cycleDuration', cycleDuration);
+    _logDebugData('cycleDuration', periodLength);
   }
 
   // Method to update fitness level
@@ -136,14 +158,76 @@ class SignupDataProvider extends ChangeNotifier {
     birthDate = null;
     height = null;
     weight = null;
-    lastCycle = null;
-    cycleDuration = null;
+    startDate = null;
+    periodLength = null;
     fitnessLevel = null;
     preferredActivities = null;
     lifestyle = null;
     bmi = null;
     notifyListeners();
     debugPrint('=== SIGNUP DATA RESET ===');
+  }
+
+  Future<bool> completeSignUp({
+    required String username,
+    required String email,
+    required String password,
+    String? name,
+    DateTime? birthDate,
+    DateTime? lastCycle,
+    int? cycleDuration,
+    String? fitnessLevel,
+    String? lifestyle,
+    List<String>? preferredActivities,
+    double? bmi,
+  }) async {
+    _status = AuthStatus.authenticating;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final user = await _authService.completeSignUp(
+        username: username,
+        email: email,
+        password: password,
+        name: name,
+        birthDate: birthDate,
+        startDate: lastCycle,
+        periodLength: cycleDuration,
+        lifestyle: lifestyle,
+        preferredActivities: preferredActivities,
+        bmi: bmi,
+      );
+
+      if (user != null) {
+        _user = user;
+        _status = AuthStatus.authenticated;
+        notifyListeners();
+        return true;
+      } else {
+        _status = AuthStatus.error;
+        _errorMessage = 'Failed to complete signup';
+        notifyListeners();
+        return false;
+      }
+    } on AuthException catch (e) {
+      _status = AuthStatus.error;
+
+      // Give more user-friendly error messages
+      if (e.message.contains('Email already registered')) {
+        _errorMessage = 'Email sudah terdaftar. Silakan login.';
+      } else {
+        _errorMessage = 'Gagal mendaftar: ${e.message}';
+      }
+
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _status = AuthStatus.error;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 
   void debugPrintData() {}

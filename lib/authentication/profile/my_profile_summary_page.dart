@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lunaria/providers/signup_data_provider.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
+import 'package:provider/provider.dart';
 import 'CreatingPlanPage.dart';
 import 'plan_result_page.dart';
 
 class MyProfileSummaryPage extends StatelessWidget {
-  const MyProfileSummaryPage({
+  MyProfileSummaryPage({
     super.key,
     required this.heightCm,
     required this.weightKg,
@@ -42,12 +44,13 @@ class MyProfileSummaryPage extends StatelessWidget {
     return const Color(0xFFEF4444);
   }
 
-  // fallback untuk string kosong
-  String _orNotSet(String s) => s.trim().isEmpty ? 'Not set' : s;
-
   @override
   Widget build(BuildContext context) {
     // final bmiStr = bmi.toStringAsFixed(1).replaceAll('.', ',');
+    final signupDataProvider = Provider.of<SignupDataProvider>(
+      context,
+      listen: false,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6F6),
@@ -101,7 +104,7 @@ class MyProfileSummaryPage extends StatelessWidget {
             _SummaryRow(
               icon: Icons.desktop_windows_rounded,
               title: 'Lifestyle',
-              value: _orNotSet(lifestyle),
+              value: signupDataProvider.lifestyle ?? "Not set",
             ),
             const SizedBox(height: 16),
 
@@ -109,7 +112,9 @@ class MyProfileSummaryPage extends StatelessWidget {
             _SummaryRow(
               icon: Icons.sports_kabaddi_rounded,
               title: 'Activities',
-              value: _orNotSet(activities),
+              value:
+                  signupDataProvider.preferredActivities?.join(', ') ??
+                  "Not set",
             ),
             const SizedBox(height: 16),
 
@@ -117,7 +122,7 @@ class MyProfileSummaryPage extends StatelessWidget {
             _SummaryRow(
               icon: Icons.water_drop_rounded,
               title: 'Period Cycle',
-              value: _orNotSet(periodCycleText),
+              value: '${signupDataProvider.periodLength ?? 0} days',
             ),
 
             const SizedBox(height: 270),
@@ -152,11 +157,12 @@ class MyProfileSummaryPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => CreatingPlanPage(
-                    nextPage:
-                        const PlanResultPage(), // ganti dengan halaman hasilmu
-                    totalDuration: const Duration(seconds: 6), // opsional
-                  ),
+                  builder:
+                      (_) => CreatingPlanPage(
+                        nextPage:
+                            const PlanResultPage(), // ganti dengan halaman hasilmu
+                        totalDuration: const Duration(seconds: 6), // opsional
+                      ),
                 ),
               );
             },

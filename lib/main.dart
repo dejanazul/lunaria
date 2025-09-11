@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lunaria/providers/signup_data_provider.dart';
+import 'package:lunaria/providers/signup_data_provider.dart' as signup;
 import 'package:lunaria/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'routes/routes.dart';
@@ -24,7 +24,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CookieProvider()),
         ChangeNotifierProvider(create: (_) => LevelProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => SignupDataProvider()),
+        ChangeNotifierProvider(create: (_) => signup.SignupDataProvider()),
       ],
       child: const MainApp(),
     ),
@@ -36,14 +36,34 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final routerConfig = AppRouter.getRouterConfig();
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        // Gunakan informasi status autentikasi dari UserProvider
+        final routerConfig = AppRouter.getRouterConfig();
 
-    return MaterialApp(
-      title: 'Lunaria',
-      navigatorKey: routerConfig['navigatorKey'],
-      onGenerateRoute: routerConfig['onGenerateRoute'],
-      initialRoute: routerConfig['initialRoute'],
-      debugShowCheckedModeBanner: false,
+        // Tentukan initial route berdasarkan status autentikasi
+        String initialRoute;
+
+        if (userProvider.isAuthenticated) {
+          initialRoute = RouteNames.home;
+          debugPrint('📱 User authenticated, redirecting to home screen');
+        } else if (userProvider.status == AuthStatus.initial ||
+            userProvider.status == AuthStatus.authenticating) {
+          initialRoute = RouteNames.login;
+          debugPrint('🔄 Checking authentication, showing login screen');
+        } else {
+          initialRoute = RouteNames.login;
+          debugPrint('🔒 User not authenticated, showing login screen');
+        }
+
+        return MaterialApp(
+          title: 'Lunaria',
+          navigatorKey: routerConfig['navigatorKey'],
+          onGenerateRoute: routerConfig['onGenerateRoute'],
+          initialRoute: initialRoute,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }

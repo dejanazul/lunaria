@@ -21,7 +21,7 @@ class UserModel {
     this.passwordHash,
     this.name,
     this.birthDate,
-    this.cookieBalance = 0,
+    this.cookieBalance = 10,
     // this.createdAt,
     this.preferredActivities,
     // this.height,

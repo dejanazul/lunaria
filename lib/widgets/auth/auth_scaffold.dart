@@ -15,8 +15,8 @@ class AuthScaffold extends StatelessWidget {
   final double maxWidth;
   final EdgeInsets padding;
 
-  static const double _logoW = 182;
-  static const double _logoH = 60;
+  // static const double _logoW = 182;
+  // static const double _logoH = 60;
   static const double _spaceLogoToTitle = 24;
   static const double _spaceTitleToFirstField = 16;
   static const double _bottomSafe = 24;

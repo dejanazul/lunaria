@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
-import 'package:lunaria/providers/user_provider.dart';
 import 'package:lunaria/screens/home_pet/vp_home.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
@@ -155,7 +154,6 @@ class _PlanResultPageState extends State<PlanResultPage> {
 
     // Get user data from SignupDataProvider
     final signupData = Provider.of<SignupDataProvider>(context, listen: false);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
       // Calculate BMI if height and weight are available
@@ -186,19 +184,17 @@ class _PlanResultPageState extends State<PlanResultPage> {
       }
 
       // Complete the signup process with all collected user data
-      final success = await userProvider.completeSignUp(
+      final success = await signupData.completeSignUp(
         username: signupData.username!,
         email: signupData.email!,
         password: signupData.password!,
         name: signupData.name,
         birthDate: signupData.birthDate,
-        height: signupData.height,
-        weight: signupData.weight,
-        lastCycle: signupData.lastCycle,
-        cycleDuration: signupData.cycleDuration,
-        fitnessLevel: signupData.fitnessLevel,
+        lastCycle: signupData.startDate,
+        cycleDuration: signupData.periodLength,
         lifestyle: signupData.lifestyle, // Use lifestyle information
         preferredActivities: signupData.preferredActivities,
+        bmi: calculatedBmi,
       );
 
       if (success) {
@@ -218,7 +214,7 @@ class _PlanResultPageState extends State<PlanResultPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to create account: ${userProvider.errorMessage}',
+              'Failed to create account: ${signupData.errorMessage}',
             ),
             backgroundColor: Colors.red,
           ),
@@ -236,15 +232,6 @@ class _PlanResultPageState extends State<PlanResultPage> {
       );
       return; // Don't proceed to home screen if an error occurred
     }
-
-    // Add a small delay before navigating
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Navigate to the home screen - only if we haven't returned early due to errors
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const VPHomeScreen()),
-    );
   }
 
   void _onClaim() {
@@ -252,15 +239,15 @@ class _PlanResultPageState extends State<PlanResultPage> {
       _claimed = true;
       _showReward = false;
     });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('🎉 10 cookies claimed!')));
-    // TODO: jalankan logic kredit cookies di state kamu di sini
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = GoogleFonts.interTextTheme(Theme.of(context).textTheme);
+    final signupDataProvider = Provider.of<SignupDataProvider>(
+      context,
+      listen: false,
+    );
 
     final pageBody = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -285,11 +272,12 @@ class _PlanResultPageState extends State<PlanResultPage> {
 
           const _InfoRow(title: 'Duration', value: '4 weeks'),
           const SizedBox(height: 12),
-          const _InfoRow(title: 'Goal', value: 'Lose weight'),
+          const _InfoRow(title: 'Goal', value: 'Healthy lifestyle'),
           const SizedBox(height: 12),
-          const _InfoRow(
+          _InfoRow(
             title: 'Interests',
-            value: 'Meal Plans, Cycle Tracking,\nWorkout Plans',
+            value:
+                signupDataProvider.preferredActivities?.join(', ') ?? "Not set",
           ),
           const SizedBox(height: 32),
 
@@ -352,7 +340,10 @@ class _PlanResultPageState extends State<PlanResultPage> {
               // backdrop
               Positioned.fill(
                 child: GestureDetector(
-                  onTap: () => setState(() => _showReward = false),
+                  onTap:
+                      () => setState(() {
+                        _showReward = false;
+                      }),
                   child: Container(color: Colors.black.withOpacity(0.25)),
                 ),
               ),
@@ -455,7 +446,16 @@ class _RewardPopupState extends State<_RewardPopup>
                   ),
                   elevation: 3,
                 ),
-                onPressed: widget.onClaim,
+                onPressed: () {
+                  widget.onClaim;
+                  if (mounted) {
+                    widget.onClaim();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const VPHomeScreen()),
+                    );
+                  }
+                },
                 child: Text(
                   'CLAIM',
                   style: t.titleMedium?.copyWith(

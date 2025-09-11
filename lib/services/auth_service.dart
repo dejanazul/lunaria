@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/models/menstrual_cycle_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 
@@ -14,11 +15,11 @@ class AuthService {
     DateTime? birthDate,
     double? height,
     double? weight,
-    DateTime? lastCycle,
-    int? cycleDuration,
-    // String? fitnessLevel,
+    DateTime? startDate,
+    int? periodLength,
     String? lifestyle,
     List<String>? preferredActivities,
+    double? bmi,
   }) async {
     try {
       // 1. Create auth user
@@ -53,26 +54,30 @@ class AuthService {
         name: name,
         birthDate: birthDate,
         preferredActivities: preferredActivities,
-        // height: height,
-        // weight: weight,
         lifestyle: lifestyle,
         bmi: calculatedBmi,
-        // fitnessLevel: fitnessLevel,
       );
 
       // 3. Insert complete user data to the 'users' table
       await _supabase.from('users').insert(userModel.toJson());
 
       // 4. If menstrual cycle data is provided, save it to the menstrual_cycles table
-      if (lastCycle != null) {
+      if (startDate != null) {
         // Create a new menstrual cycle entry
-        final menstrualCycleData = {
-          'user_id': userId,
-          'start_date': lastCycle.toIso8601String(),
-          'period_length': cycleDuration,
-        };
+        // final menstrualCycleData = {
+        //   'user_id': userId,
+        //   'start_date': startDate.toIso8601String(),
+        //   'period_length': periodLength,
+        // };
+        final menstrualCycleModel = MenstrualCycleModel(
+          userId: userId,
+          startDate: startDate,
+          periodLength: periodLength,
+        );
 
-        await _supabase.from('menstrual_cycles').insert(menstrualCycleData);
+        await _supabase
+            .from('menstrual_cycles')
+            .insert(menstrualCycleModel.toJson());
       }
 
       return userModel;

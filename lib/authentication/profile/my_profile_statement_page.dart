@@ -95,7 +95,7 @@ class _MyProfileYesNoPageState extends State<MyProfileYesNoPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Hidup itu kadang-kadang kalo ga kadang ya kidding',
+                      'Menurutmu, apakah olahraga penting?',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
