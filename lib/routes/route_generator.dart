@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/screens/calendar/calendar_page.dart';
 import 'route_names.dart';
-import '../screens/calendar/calendar_screen.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
 import '../screens/home_pet/buy_cookies.dart';
@@ -15,7 +15,7 @@ class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RouteNames.calendar:
-        return _createRoute(const CalendarScreen());
+        return _createRoute(const CalendarPage());
       case RouteNames.train:
         return _createRoute(const TrainScreen());
       case RouteNames.home:

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lunaria/routes/navigation_service.dart';
+import 'package:lunaria/widgets/bottom_nav.dart';
 import 'cyclehistory.dart';
 import 'symptoms.dart';
 import 'symptomschecker.dart';
-import 'logactivity.dart';  
-import 'detailcalendar.dart'; 
+import 'logactivity.dart';
+import 'detailcalendar.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -16,8 +18,9 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDate = DateTime.now();
 
-  String get _monthYear =>
-      DateFormat.yMMMM().format(DateTime(_focusedDate.year, _focusedDate.month));
+  String get _monthYear => DateFormat.yMMMM().format(
+    DateTime(_focusedDate.year, _focusedDate.month),
+  );
 
   Future<void> _pickMonthYear() async {
     final picked = await showDatePicker(
@@ -41,172 +44,205 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final int currentIndex = 0;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
-        child: Column(
+        child: Stack(
           children: [
-            // 🔹 Header Calendar
-            Container(
-              padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.pink.shade300, Colors.pink.shade200],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // Top bar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              children: [
+                // 🔹 Header Calendar
+                Container(
+                  padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.pink.shade300, Colors.pink.shade200],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
+                    ),
+                  ),
+                  child: Column(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.add, color: Colors.white),
+                      // Top bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const Logactivity(),
+                                ),
+                              );
+                            },
+                          ),
+                          GestureDetector(
+                            onTap: _pickMonthYear,
+                            child: Text(
+                              _monthYear,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.calendar_today,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const DetailCalendar(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // 🔹 Mini Calendar
+                      SizedBox(
+                        height: 80,
+                        child: PageView.builder(
+                          controller: PageController(initialPage: 5000),
+                          onPageChanged: (index) {
+                            setState(() {
+                              _focusedDate = DateTime.now().add(
+                                Duration(days: (index - 5000) * 7),
+                              );
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            final baseDate = DateTime.now().add(
+                              Duration(days: (index - 5000) * 7),
+                            );
+                            final weekDates = _getWeekDates(baseDate);
+
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children:
+                                  weekDates.map((date) {
+                                    bool isToday = DateUtils.isSameDay(
+                                      date,
+                                      DateTime.now(),
+                                    );
+                                    return _DateItem(
+                                      label: DateFormat('E').format(date),
+                                      day: date.day.toString(),
+                                      isToday: isToday,
+                                    );
+                                  }).toList(),
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 🔹 Period Info
+                      const Text(
+                        "Period",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        "Day 1",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 🔹 Log Activity Button
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.pink,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 0,
+                        ),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const Logactivity()),
+                              builder: (_) => const Logactivity(),
+                            ),
                           );
                         },
-                      ),
-                      GestureDetector(
-                        onTap: _pickMonthYear,
-                        child: Text(
-                          _monthYear,
-                          style: const TextStyle(
-                            color: Colors.white,
+                        child: const Text(
+                          "Log Activity",
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 15,
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.calendar_today,
-                            color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const DetailCalendar()),
-                          );
-                        },
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
+                ),
 
-                  const SizedBox(height: 8),
-
-                  // 🔹 Mini Calendar
-                  SizedBox(
-                    height: 80,
-                    child: PageView.builder(
-                      controller: PageController(initialPage: 5000),
-                      onPageChanged: (index) {
-                        setState(() {
-                          _focusedDate = DateTime.now()
-                              .add(Duration(days: (index - 5000) * 7));
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final baseDate = DateTime.now()
-                            .add(Duration(days: (index - 5000) * 7));
-                        final weekDates = _getWeekDates(baseDate);
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: weekDates.map((date) {
-                            bool isToday =
-                                DateUtils.isSameDay(date, DateTime.now());
-                            return _DateItem(
-                              label: DateFormat('E').format(date),
-                              day: date.day.toString(),
-                              isToday: isToday,
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // 🔹 Period Info
-                  const Text(
-                    "Period",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Day 1",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 🔹 Log Activity Button
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.pink,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                // 🔹 My Cycles Section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "My Cycles",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const Logactivity()),
-                      );
-                    },
-                    child: const Text(
-                      "Log Activity",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
+                      const SizedBox(height: 16),
+                      _detailsCard(),
+                      const SizedBox(height: 16),
+                      _cycleHistoryCard(context),
+                      const SizedBox(height: 16),
+                      _symptomsCard(context),
+                      const SizedBox(height: 16),
+                      _symptomsCheckerCard(context),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // 🔹 My Cycles Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "My Cycles",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _detailsCard(),
-                  const SizedBox(height: 16),
-                  _cycleHistoryCard(context),
-                  const SizedBox(height: 16),
-                  _symptomsCard(context),
-                  const SizedBox(height: 16),
-                  _symptomsCheckerCard(context),
-                ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: BottomNav(
+                currentIndex: currentIndex,
+                onTap: (index) {
+                  NavigationService.navigateToBottomNavScreen(
+                    context,
+                    index,
+                    currentIndex,
+                  );
+                },
               ),
             ),
           ],
@@ -258,10 +294,7 @@ class _CalendarPageState extends State<CalendarPage> {
           _CycleCard(
             duration: "Current Cycle: 1 Day",
             dateRange: "Started Aug 11",
-            days: [
-              Colors.pink,
-              ...List.filled(32, Colors.grey.shade300),
-            ],
+            days: [Colors.pink, ...List.filled(32, Colors.grey.shade300)],
           ),
           const SizedBox(height: 12),
 
@@ -360,8 +393,11 @@ class _DateItem extends StatelessWidget {
   final String day;
   final bool isToday;
 
-  const _DateItem(
-      {required this.label, required this.day, this.isToday = false});
+  const _DateItem({
+    required this.label,
+    required this.day,
+    this.isToday = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -419,8 +455,7 @@ class _DetailRow extends StatelessWidget {
           children: const [
             Text(
               "NORMAL",
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(width: 4),
             Icon(Icons.check_circle, color: Colors.green, size: 18),
@@ -436,16 +471,21 @@ class _HeaderWithButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onTap;
 
-  const _HeaderWithButton(
-      {required this.title, required this.buttonText, this.onTap});
+  const _HeaderWithButton({
+    required this.title,
+    required this.buttonText,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
@@ -477,10 +517,7 @@ class _WhiteCard extends StatelessWidget {
       elevation: 3,
       shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(16), child: child),
     );
   }
 }
@@ -506,34 +543,29 @@ class _CycleCard extends StatelessWidget {
         children: [
           Text(
             duration,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           Text(
             dateRange,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
           ),
           const SizedBox(height: 6),
           Wrap(
             spacing: 3,
             runSpacing: 3,
-            children: days
-                .map(
-                  (color) => Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                )
-                .toList(),
+            children:
+                days
+                    .map(
+                      (color) => Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                    .toList(),
           ),
         ],
       ),

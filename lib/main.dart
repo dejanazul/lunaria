@@ -47,10 +47,6 @@ class MainApp extends StatelessWidget {
         if (userProvider.isAuthenticated) {
           initialRoute = RouteNames.home;
           debugPrint('📱 User authenticated, redirecting to home screen');
-        } else if (userProvider.status == AuthStatus.initial ||
-            userProvider.status == AuthStatus.authenticating) {
-          initialRoute = RouteNames.login;
-          debugPrint('🔄 Checking authentication, showing login screen');
         } else {
           initialRoute = RouteNames.login;
           debugPrint('🔒 User not authenticated, showing login screen');
