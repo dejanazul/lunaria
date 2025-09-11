@@ -140,7 +140,6 @@ class _VideoCard extends StatelessWidget {
     required this.isUnlocked,
     required this.onUnlock,
     required this.onTap,
-    super.key,
   });
 
   @override

@@ -6,8 +6,8 @@ import '../screens/home_pet/vp_home.dart';
 import '../screens/home_pet/buy_cookies.dart';
 import '../screens/community/community_screen.dart';
 import '../screens/profile/profile_screen.dart';
-import '../authentication/login.dart';
-import '../authentication/signup.dart';
+import '../authentication/login_page.dart';
+import '../authentication/sign_up_page.dart';
 
 /// Kelas untuk generate route berdasarkan nama route
 class RouteGenerator {
@@ -25,9 +25,9 @@ class RouteGenerator {
       case RouteNames.profile:
         return _createRoute(const ProfileScreen());
       case RouteNames.login:
-        return _createRoute(const LoginScreen());
+        return _createRoute(const LoginPage());
       case RouteNames.signup:
-        return _createRoute(const SignUpScreen());
+        return _createRoute(const SignUpPage());
       case RouteNames.buyCookies:
         return _createRoute(BuyCookiesScreen());
       default:

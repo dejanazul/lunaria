@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/providers/signup_data_provider.dart';
+import 'package:lunaria/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'routes/routes.dart';
 import 'providers/chat_history_provider.dart';
@@ -7,6 +9,8 @@ import 'providers/level_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: 'https://vusuygyolfeyaczrjsjh.supabase.co',
     anonKey:
@@ -19,6 +23,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ChatHistoryProvider()),
         ChangeNotifierProvider(create: (_) => CookieProvider()),
         ChangeNotifierProvider(create: (_) => LevelProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => SignupDataProvider()),
       ],
       child: const MainApp(),
     ),

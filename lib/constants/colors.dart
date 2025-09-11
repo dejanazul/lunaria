@@ -69,6 +69,10 @@ class AppColors {
   static const Color calendarToday = Color(0xFF913F9E);
   static const Color calendarSelected = Color(0xFFC774B2);
   static const Color calendarEvent = Color(0xFF7B347E);
+
+  static var purpleDark;
+
+  static var purpleMid;
 }
 
 /// App Theme Data

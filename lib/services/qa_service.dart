@@ -74,8 +74,7 @@ class QAService {
           // Jika tidak ada hasil yang ditemukan
           debugPrint('⚠️ Tidak ada hasil yang ditemukan di database');
           final noResultAnswer = await _geminiService.generateLunaResponse(
-            "Saya telah melakukan research terkait pertanyaan Anda tentang '$question', " "tetapi tidak menemukan informasi yang relevan pada database saya. " +
-                "Saya akan mencoba menjawab berdasarkan pengetahuan umum saya.",
+            "Saya telah melakukan research terkait pertanyaan Anda tentang '$question', " "tetapi tidak menemukan informasi yang relevan pada database saya. " "Saya akan mencoba menjawab berdasarkan pengetahuan umum saya.",
           );
 
           return {

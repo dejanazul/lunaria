@@ -11,7 +11,7 @@ class AppRouter {
   }
 
   /// Initial route aplikasi
-  static String get initialRoute => RouteNames.home;
+  static String get initialRoute => RouteNames.login;
 
   /// Navigator key untuk akses global
   static GlobalKey<NavigatorState> get navigatorKey =>

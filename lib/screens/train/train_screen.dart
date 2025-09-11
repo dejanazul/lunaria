@@ -732,7 +732,6 @@ class _SportIcon extends StatelessWidget {
     required this.label,
     required this.asset,
     required this.tag,
-    super.key,
   });
 
   @override
