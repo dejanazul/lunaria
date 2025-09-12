@@ -52,7 +52,7 @@ class _LevelIndicatorState extends State<LevelIndicator>
             const Icon(Icons.emoji_events, color: Colors.amber),
             const SizedBox(width: 10),
             Text(
-              'Selamat! Level naik menjadi $level',
+              'Selamat! anda sekarang level $level',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
@@ -60,7 +60,7 @@ class _LevelIndicatorState extends State<LevelIndicator>
         backgroundColor: const Color(0xFF913F9E),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).size.height * 0.7,
+          bottom: MediaQuery.of(context).size.height * 0.75,
           left: 20,
           right: 20,
         ),
@@ -137,7 +137,10 @@ class _LevelIndicatorState extends State<LevelIndicator>
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF913F9E)),
+                          border: Border.all(
+                            color: const Color(0xFF913F9E),
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),
@@ -152,6 +155,10 @@ class _LevelIndicatorState extends State<LevelIndicator>
                         decoration: BoxDecoration(
                           color: const Color(0xFFE9CBEE),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFF913F9E),
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),

@@ -22,9 +22,9 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ChatHistoryProvider()),
         ChangeNotifierProvider(create: (_) => CookieProvider()),
-        ChangeNotifierProvider(create: (_) => LevelProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => signup.SignupDataProvider()),
+        ChangeNotifierProvider(create: (_) => LevelProvider()),
       ],
       child: const MainApp(),
     ),

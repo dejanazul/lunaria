@@ -36,18 +36,18 @@ class _VideoListScreenState extends State<VideoListScreen> {
 
   void unlockVideo(String id) {
     final cookieProvider = Provider.of<CookieProvider>(context, listen: false);
-    if (cookieProvider.spendCookies(30)) {
-      setState(() {
-        unlocked.add(id);
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Video unlocked!')));
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Not enough cookies!')));
-    }
+    // if (cookieProvider.spendCookies(30)) {
+    //   setState(() {
+    //     unlocked.add(id);
+    //   });
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(SnackBar(content: Text('Video unlocked!')));
+    // } else {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(SnackBar(content: Text('Not enough cookies!')));
+    // }
   }
 
   @override

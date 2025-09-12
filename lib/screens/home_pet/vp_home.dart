@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/providers/cookie_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:lunaria/providers/chat_history_provider.dart';
+import 'package:lunaria/providers/level_provider.dart';
+import 'package:lunaria/providers/user_provider.dart';
 import '../../helpers/responsive_helper.dart';
 import '../../widgets/bottom_nav.dart';
 import '../../routes/routes.dart';
@@ -17,6 +20,28 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
   final int _currentIndex = 2;
   final TextEditingController _chatController = TextEditingController();
   final FocusNode _chatFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Sync level data from database when home screen is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final levelProvider = Provider.of<LevelProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final cookieProvider = Provider.of<CookieProvider>(
+        context,
+        listen: false,
+      );
+
+      // Initialize level provider with user data
+      levelProvider.initialize(userProvider);
+      cookieProvider.initialize(userProvider);
+
+      // Sync latest data from database
+      levelProvider.syncFromDatabase();
+      cookieProvider.syncFromDatabase();
+    });
+  }
 
   @override
   void dispose() {
@@ -91,30 +116,8 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     child: Row(
                       children: [
                         _buildCookieCounter(),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(RouteNames.buyCookies);
-                          },
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF2D6BA),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: const Color(0xFF553F35),
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              size: 16,
-                              color: Color(0xFF553F35),
-                            ),
-                          ),
-                        ),
+                        const SizedBox(width: 5),
+                        _buildAddCookieButton(),
                       ],
                     ),
                   ),
@@ -182,33 +185,30 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
   }
 
   Widget _buildLevelIndicator() {
-    return LevelIndicator(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('XP +10! Terus berlatih untuk naik level!'),
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 1),
-          ),
-        );
-      },
-    );
+    return const LevelIndicator();
   }
 
   Widget _buildCookieCounter() {
-    return CookieCounter(
+    return const CookieCounter();
+  }
+
+  Widget _buildAddCookieButton() {
+    return GestureDetector(
       onTap: () {
-        // Tambahkan cookie seperti biasa
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Cookie +1! Kumpulkan untuk memberi makan hewan peliharaan!',
-            ),
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 1),
-          ),
-        );
+        Navigator.of(context).pushNamed(RouteNames.buyCookies);
       },
+      child: Container(
+        width: 25,
+        height: 25,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF2D6BA),
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFF553F35), width: 1.5),
+        ),
+        child: const Center(
+          child: Icon(Icons.add, size: 12, color: Color(0xFF553F35)),
+        ),
+      ),
     );
   }
 

@@ -96,11 +96,11 @@ class _SetScheduleScreenState extends State<SetScheduleScreen> {
                         context,
                         listen: false,
                       );
-                      if (cookieProvider.spendCookies(bookingCost)) {
-                        _showSuccessDialog(slotIdx);
-                      } else {
-                        _showErrorDialog();
-                      }
+                      // if (cookieProvider.spendCookies(bookingCost)) {
+                      //   _showSuccessDialog(slotIdx);
+                      // } else {
+                      //   _showErrorDialog();
+                      // }
                     },
                   ),
                 ),

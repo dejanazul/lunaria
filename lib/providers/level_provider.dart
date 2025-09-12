@@ -1,78 +1,104 @@
+import 'dart:math' as Math;
+
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../providers/user_provider.dart';
 
-/// Provider untuk mengelola level dan XP karakter
 class LevelProvider extends ChangeNotifier {
-  int _level = 0;
+  int _level = 1;
   int _currentXP = 0;
-  static const String _levelKey = 'level';
-  static const String _xpKey = 'current_xp';
+  final int _baseXPNeeded = 100; // XP needed for level 2
+  UserProvider? _userProvider;
 
-  LevelProvider() {
-    _loadSavedData();
-  }
-
-  /// Level karakter saat ini
+  // Getters
   int get level => _level;
-
-  /// XP karakter saat ini
   int get currentXP => _currentXP;
 
-  /// XP yang dibutuhkan untuk naik level berikutnya
-  /// Formula: 100 * (level + 1)
-  int get xpNeededForNextLevel => 100 * (_level + 1);
+  int get xpNeededForNextLevel {
+    // Formula: Base XP * (current level ^ 1.5)
+    // Level 1 needs 100 XP to reach level 2
+    // Level 2 needs 283 XP to reach level 3
+    // Level 3 needs 520 XP to reach level 4, etc.
+    return (_baseXPNeeded * (Math.pow(_level, 1.5))).round();
+  }
 
-  /// Persentase progres XP (0.0 - 1.0)
-  double get progressPercentage => _currentXP / xpNeededForNextLevel;
+  // Inisialisasi dengan user provider
+  void initialize(UserProvider userProvider) {
+    _userProvider = userProvider;
 
-  /// Menambahkan XP dan cek apakah level up
-  void addXP(int amount) {
-    if (amount <= 0) return;
+    // Load level and XP from user data if available
+    if (_userProvider?.user != null) {
+      _level = _userProvider!.user!.level;
+      _currentXP = _userProvider!.user!.exp;
+    }
 
-    _currentXP += amount;
-    _checkLevelUp();
-    _saveData();
     notifyListeners();
   }
 
-  /// Set level secara manual (untuk debug/testing)
-  void setLevel(int level) {
-    if (level < 0) return;
+  // Add XP and handle level up
+  Future<void> addXP(int xpPoints) async {
+    _currentXP += xpPoints;
 
-    _level = level;
-    _currentXP = 0;
-    _saveData();
-    notifyListeners();
-  }
-
-  /// Reset level dan XP ke 0
-  void resetProgress() {
-    _level = 0;
-    _currentXP = 0;
-    _saveData();
-    notifyListeners();
-  }
-
-  /// Cek apakah XP cukup untuk naik level
-  void _checkLevelUp() {
+    // Check for level up
     while (_currentXP >= xpNeededForNextLevel) {
       _currentXP -= xpNeededForNextLevel;
       _level++;
     }
-  }
 
-  /// Load data dari SharedPreferences
-  Future<void> _loadSavedData() async {
-    final prefs = await SharedPreferences.getInstance();
-    _level = prefs.getInt(_levelKey) ?? 0;
-    _currentXP = prefs.getInt(_xpKey) ?? 0;
     notifyListeners();
+
+    // Save to database if user is logged in
+    if (_userProvider?.user != null) {
+      await _saveToDatabase();
+    }
   }
 
-  /// Simpan data ke SharedPreferences
-  Future<void> _saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_levelKey, _level);
-    await prefs.setInt(_xpKey, _currentXP);
+  // Save level data to database
+  Future<void> _saveToDatabase() async {
+    try {
+      if (_userProvider?.user?.id == null) return;
+
+      final supabase = Supabase.instance.client;
+      await supabase
+          .from('users')
+          .update({'level': _level, 'exp': _currentXP})
+          .eq('user_id', _userProvider!.user!.id as Object);
+
+      // Update local user model
+      if (_userProvider?.user != null) {
+        final updatedUser = _userProvider!.user!.copyWith(
+          level: _level,
+          exp: _currentXP,
+        );
+        _userProvider!.updateUserData(updatedUser);
+      }
+
+      debugPrint(
+        'Level data saved successfully: Level $_level, XP $_currentXP',
+      );
+    } catch (e) {
+      debugPrint('Error saving level data: $e');
+    }
+  }
+
+  // Method to sync level from database
+  Future<void> syncFromDatabase() async {
+    if (_userProvider?.user?.id == null) return;
+
+    try {
+      final supabase = Supabase.instance.client;
+      final response =
+          await supabase
+              .from('users')
+              .select('level, exp')
+              .eq('user_id', _userProvider!.user!.id as Object)
+              .single();
+
+      _level = response['level'] ?? 1;
+      _currentXP = response['exp'] ?? 0;
+      notifyListeners();
+        } catch (e) {
+      debugPrint('Error syncing level data: $e');
+    }
   }
 }

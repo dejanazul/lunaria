@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
@@ -121,4 +120,8 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUserData(UserModel updatedUser) {
+    _user = updatedUser;
+    notifyListeners();
+  }
 }

@@ -1,4 +1,4 @@
-export 'level_indicator.dart';
+export 'level_indicator_new.dart';
 export 'cookie_counter.dart';
 export 'settings_button.dart';
 export 'mood_button.dart';
