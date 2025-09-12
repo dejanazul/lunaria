@@ -50,6 +50,22 @@ class ResponsiveHelper {
   }
 
   // Responsive font sizes
+  static double getFontSize(
+    BuildContext context, {
+    double small = 12.0,
+    double medium = 14.0,
+    double large = 16.0,
+  }) {
+    if (isMobile(context)) {
+      return small;
+    } else if (isTablet(context)) {
+      return medium;
+    } else {
+      return large;
+    }
+  }
+
+  // Responsive font sizes
   static double getHeadingFontSize(BuildContext context) {
     if (isMobile(context)) {
       return 20;
