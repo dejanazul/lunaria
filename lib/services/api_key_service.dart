@@ -5,18 +5,9 @@ class ApiKeyService {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
-
-  // // Kunci untuk menyimpan API key di secure storage
-  // static const String _geminiApiKeyKey =
-  //     'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
-
-  // static const String _geminiApiKeyKey =
-  //   'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
-
-  // Kunci untuk menyimpan API key di secure storage
-  static const String _geminiApiKeyKey =
-      'GEMINI_API_KEY';
-
+  static const String _geminiApiKeyKey = String.fromEnvironment(
+    "GEMINI_API_KEY",
+  );
   static Future<void> saveGeminiApiKey(String apiKey) async {
     await _storage.write(key: _geminiApiKeyKey, value: apiKey);
   }

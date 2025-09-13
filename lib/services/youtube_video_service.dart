@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class YoutubeVideoService {
-  static const String apiKey = 'YOUTUBE_API_KEY';
+  static const String apiKey = String.fromEnvironment("YOUTUBE_API_KEY");
 
   static Future<List<Map<String, dynamic>>> fetchVideosByTag(String tag) async {
     final url =

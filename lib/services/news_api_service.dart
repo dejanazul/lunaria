@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class NewsApiService {
-  static const String _apiKey = 'NEWS_API_KEY';
-  static const String _baseUrl = 'NEWS_BASE_URL';
+  static const String _apiKey = String.fromEnvironment('NEWS_API_KEY');
+  static const String _baseUrl = String.fromEnvironment('NEWS_BASE_URL');
 
   static Future<List<Map<String, dynamic>>> fetchArticles({
     List<String>? keywords,

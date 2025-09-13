@@ -3,10 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TextEmbedService {
-  static const String apiKey = 'HF_INFERENCE_KEY';
+  static const String apiKey = String.fromEnvironment("HF_INFERENCE_KEY");
 
-  static const String apiUrl =
-      "HF_INFERENCE_URL";
+  static const String apiUrl = String.fromEnvironment("HF_INFERENCE_URL");
 
   Future<List<double>> getEmbedding(String input) async {
     debugPrint('============= DEBUG: TEXT EMBEDDING =============');
