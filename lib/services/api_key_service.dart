@@ -14,12 +14,9 @@ class ApiKeyService {
   //   'AIzaSyBhdVscUmuJbpZLouLZDNtEK7ei9bVyRuQ';
 
   // Kunci untuk menyimpan API key di secure storage
-  static const String _geminiApiKeyKey =
-      'AIzaSyCbmFeLEOciRSBz_NaII-e7j1dtp_qgpVM';
+  static const String _geminiApiKeyKey = 'GEMINI_API_KEY';
 
   // API Key default yang hardcoded
-  static const String _defaultApiKey =
-      'AIzaSyCbmFeLEOciRSBz_NaII-e7j1dtp_qgpVM';
 
   static Future<void> saveGeminiApiKey(String apiKey) async {
     await _storage.write(key: _geminiApiKeyKey, value: apiKey);
@@ -27,7 +24,7 @@ class ApiKeyService {
 
   static Future<String> getGeminiApiKey() async {
     // Selalu kembalikan default API key jika tidak ada yang disimpan
-    return await _storage.read(key: _geminiApiKeyKey) ?? _defaultApiKey;
+    return await _storage.read(key: _geminiApiKeyKey) ?? "";
   }
 
   // Method ini masih berguna jika nanti ingin cek apakah user sudah custom API key
