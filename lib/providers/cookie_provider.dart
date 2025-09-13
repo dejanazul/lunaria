@@ -65,4 +65,23 @@ class CookieProvider extends ChangeNotifier {
       await _saveToDatabase();
     }
   }
+
+  // Method to spend cookies and return true if successful, false otherwise
+  bool spendCookies(int amount) {
+    // Check if user has enough cookies
+    if (_cookies < amount) {
+      return false;
+    }
+
+    // Deduct cookies
+    _cookies -= amount;
+    notifyListeners();
+
+    // Save changes to database
+    if (_userProvider?.user != null) {
+      _saveToDatabase();
+    }
+
+    return true;
+  }
 }

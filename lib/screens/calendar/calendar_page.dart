@@ -51,246 +51,261 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           SingleChildScrollView(
             physics: BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                // 🔹 Header Calendar
-                Container(
-                  padding: EdgeInsets.only(
-                    top: ResponsiveHelper.isTablet(context) ? 30 : 20,
-                    left: ResponsiveHelper.isTablet(context) ? 24 : 16,
-                    right: ResponsiveHelper.isTablet(context) ? 24 : 16,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.pink.shade300, Colors.pink.shade200],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 120,
+              ),
+              child: Column(
+                children: [
+                  // 🔹 Header Calendar
+                  Container(
+                    padding: EdgeInsets.only(
+                      top: ResponsiveHelper.isTablet(context) ? 50 : 40,
+                      left: ResponsiveHelper.isTablet(context) ? 24 : 16,
+                      right: ResponsiveHelper.isTablet(context) ? 24 : 16,
                     ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(
-                        ResponsiveHelper.isTablet(context) ? 50 : 40,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.pink.shade300, Colors.pink.shade200],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      bottomRight: Radius.circular(
-                        ResponsiveHelper.isTablet(context) ? 50 : 40,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(
+                          ResponsiveHelper.isTablet(context) ? 50 : 40,
+                        ),
+                        bottomRight: Radius.circular(
+                          ResponsiveHelper.isTablet(context) ? 50 : 40,
+                        ),
                       ),
                     ),
-                  ),
-                  child: SizedBox(
-                    height: ResponsiveHelper.isTablet(context) ? 300 : 250,
-                    child: Column(
-                      children: [
-                        // Top bar
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.add, color: Colors.white),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const Logactivity(),
-                                  ),
-                                );
-                              },
-                            ),
-                            GestureDetector(
-                              onTap: _pickMonthYear,
-                              child: Text(
-                                _monthYear,
-                                style: TextStyle(
+                    child: SizedBox(
+                      height: ResponsiveHelper.isTablet(context) ? 375 : 325,
+                      child: Column(
+                        children: [
+                          // Top bar
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.add,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: ResponsiveHelper.getFontSize(
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
                                     context,
-                                    small: 16,
-                                    medium: 18,
-                                    large: 20,
+                                    MaterialPageRoute(
+                                      builder: (_) => const Logactivity(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              GestureDetector(
+                                onTap: _pickMonthYear,
+                                child: Text(
+                                  _monthYear,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ResponsiveHelper.getFontSize(
+                                      context,
+                                      small: 16,
+                                      medium: 18,
+                                      large: 20,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.calendar_today,
-                                color: Colors.white,
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.calendar_today,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const DetailCalendar(),
+                                    ),
+                                  );
+                                },
                               ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const DetailCalendar(),
-                                  ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // 🔹 Mini Calendar
+                          SizedBox(
+                            height:
+                                ResponsiveHelper.isTablet(context) ? 100 : 80,
+                            child: PageView.builder(
+                              controller: PageController(initialPage: 5000),
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _focusedDate = DateTime.now().add(
+                                    Duration(days: (index - 5000) * 7),
+                                  );
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                final baseDate = DateTime.now().add(
+                                  Duration(days: (index - 5000) * 7),
+                                );
+                                final weekDates = _getWeekDates(baseDate);
+
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children:
+                                      weekDates.map((date) {
+                                        bool isToday = DateUtils.isSameDay(
+                                          date,
+                                          DateTime.now(),
+                                        );
+                                        return _DateItem(
+                                          label: DateFormat('E').format(date),
+                                          day: date.day.toString(),
+                                          isToday: isToday,
+                                        );
+                                      }).toList(),
                                 );
                               },
                             ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // 🔹 Mini Calendar
-                        SizedBox(
-                          height: ResponsiveHelper.isTablet(context) ? 100 : 80,
-                          child: PageView.builder(
-                            controller: PageController(initialPage: 5000),
-                            onPageChanged: (index) {
-                              setState(() {
-                                _focusedDate = DateTime.now().add(
-                                  Duration(days: (index - 5000) * 7),
-                                );
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              final baseDate = DateTime.now().add(
-                                Duration(days: (index - 5000) * 7),
-                              );
-                              final weekDates = _getWeekDates(baseDate);
-
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children:
-                                    weekDates.map((date) {
-                                      bool isToday = DateUtils.isSameDay(
-                                        date,
-                                        DateTime.now(),
-                                      );
-                                      return _DateItem(
-                                        label: DateFormat('E').format(date),
-                                        day: date.day.toString(),
-                                        isToday: isToday,
-                                      );
-                                    }).toList(),
-                              );
-                            },
                           ),
-                        ),
 
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
-                        // 🔹 Period Info
-                        Text(
-                          "Period",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: ResponsiveHelper.getFontSize(
-                              context,
-                              small: 14,
-                              medium: 16,
-                              large: 18,
+                          // 🔹 Period Info
+                          Text(
+                            "Period",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: ResponsiveHelper.getFontSize(
+                                context,
+                                small: 14,
+                                medium: 16,
+                                large: 18,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: ResponsiveHelper.isMobile(context) ? 4 : 6,
-                        ),
-                        Text(
-                          "Day 1",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: ResponsiveHelper.getFontSize(
-                              context,
-                              small: 32,
-                              medium: 36,
-                              large: 40,
+                          SizedBox(
+                            height: ResponsiveHelper.isMobile(context) ? 4 : 6,
+                          ),
+                          Text(
+                            "Day 1",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: ResponsiveHelper.getFontSize(
+                                context,
+                                small: 32,
+                                medium: 36,
+                                large: 40,
+                              ),
+                              fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          SizedBox(
+                            height:
+                                ResponsiveHelper.isMobile(context) ? 16 : 20,
+                          ),
+
+                          // 🔹 Log Activity Button
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.pink,
+                              padding: EdgeInsets.symmetric(
+                                horizontal:
+                                    ResponsiveHelper.isTablet(context)
+                                        ? 50
+                                        : 40,
+                                vertical:
+                                    ResponsiveHelper.isTablet(context)
+                                        ? 16
+                                        : 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.isTablet(context) ? 28 : 24,
+                                ),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const Logactivity(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Log Activity",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: ResponsiveHelper.getFontSize(
+                                  context,
+                                  small: 14,
+                                  medium: 15,
+                                  large: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height:
+                                ResponsiveHelper.isTablet(context) ? 30 : 24,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // 🔹 My Cycles Section
+                  Padding(
+                    padding: EdgeInsets.all(
+                      ResponsiveHelper.isMobile(context)
+                          ? 16
+                          : (ResponsiveHelper.isTablet(context) ? 20 : 24),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "My Cycles",
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
+                            fontSize: ResponsiveHelper.getFontSize(
+                              context,
+                              small: 18,
+                              medium: 20,
+                              large: 24,
+                            ),
                           ),
                         ),
                         SizedBox(
                           height: ResponsiveHelper.isMobile(context) ? 16 : 20,
                         ),
-
-                        // 🔹 Log Activity Button
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.pink,
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  ResponsiveHelper.isTablet(context) ? 50 : 40,
-                              vertical:
-                                  ResponsiveHelper.isTablet(context) ? 16 : 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                ResponsiveHelper.isTablet(context) ? 28 : 24,
-                              ),
-                            ),
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const Logactivity(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            "Log Activity",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: ResponsiveHelper.getFontSize(
-                                context,
-                                small: 14,
-                                medium: 15,
-                                large: 16,
-                              ),
-                            ),
-                          ),
-                        ),
+                        _detailsCard(),
                         SizedBox(
-                          height: ResponsiveHelper.isTablet(context) ? 30 : 24,
+                          height: ResponsiveHelper.isMobile(context) ? 16 : 20,
                         ),
+                        _cycleHistoryCard(context),
+                        SizedBox(
+                          height: ResponsiveHelper.isMobile(context) ? 16 : 20,
+                        ),
+                        _symptomsCard(context),
+                        SizedBox(
+                          height: ResponsiveHelper.isMobile(context) ? 16 : 20,
+                        ),
+                        _symptomsCheckerCard(context),
                       ],
                     ),
                   ),
-                ),
-
-                // 🔹 My Cycles Section
-                Padding(
-                  padding: EdgeInsets.all(
-                    ResponsiveHelper.isMobile(context)
-                        ? 16
-                        : (ResponsiveHelper.isTablet(context) ? 20 : 24),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "My Cycles",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: ResponsiveHelper.getFontSize(
-                            context,
-                            small: 18,
-                            medium: 20,
-                            large: 24,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.isMobile(context) ? 16 : 20,
-                      ),
-                      _detailsCard(),
-                      SizedBox(
-                        height: ResponsiveHelper.isMobile(context) ? 16 : 20,
-                      ),
-                      _cycleHistoryCard(context),
-                      SizedBox(
-                        height: ResponsiveHelper.isMobile(context) ? 16 : 20,
-                      ),
-                      _symptomsCard(context),
-                      SizedBox(
-                        height: ResponsiveHelper.isMobile(context) ? 16 : 20,
-                      ),
-                      _symptomsCheckerCard(context),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Positioned(

@@ -311,7 +311,6 @@ class _TrainScreenState extends State<TrainScreen>
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -525,6 +524,7 @@ class _TrainScreenState extends State<TrainScreen>
         bottom:
             false, // Karena bottomNavigationBar sudah memiliki padding sendiri
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(

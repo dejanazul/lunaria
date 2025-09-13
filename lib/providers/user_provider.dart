@@ -23,6 +23,7 @@ class UserProvider extends ChangeNotifier {
   AuthStatus get status => _status;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+  String? get userId => _user?.userId;
 
   UserProvider() {
     // Check for existing session on initialization
@@ -53,9 +54,9 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Updated signIn method to handle the new exception from AuthService
-  Future<bool> signIn({required String email, required String password}) async {
-    debugPrint('Attempting to sign in user: $email');
+  // Updated logIn method to handle the new exception from AuthService
+  Future<bool> logIn({required String email, required String password}) async {
+    debugPrint('Attempting to log in user: $email');
     _status = AuthStatus.authenticating;
     _errorMessage = null;
     notifyListeners();
@@ -64,7 +65,8 @@ class UserProvider extends ChangeNotifier {
       final user = await _authService.logIn(email: email, password: password);
 
       if (user != null) {
-        debugPrint('Sign in successful for: ${user.email}');
+        debugPrint('Log in successful for: ${user.email}');
+        debugPrint('User ID: ${user.userId}');
         _user = user;
         _status = AuthStatus.authenticated;
         notifyListeners();
@@ -76,24 +78,9 @@ class UserProvider extends ChangeNotifier {
         notifyListeners();
         return false;
       }
-    } on AuthException catch (e) {
-      debugPrint('Auth exception during sign in: ${e.message}');
-      _status = AuthStatus.error;
-
-      // Give more user-friendly error messages
-      if (e.message.contains('Invalid login')) {
-        _errorMessage = 'Email atau password salah';
-      } else if (e.message.contains('Email not confirmed')) {
-        _errorMessage = 'Silakan konfirmasi email Anda terlebih dahulu';
-      } else {
-        _errorMessage = 'Gagal login: ${e.message}';
-      }
-
-      notifyListeners();
-      return false;
     } catch (e) {
       // This will now catch our custom exception when user exists in auth but not in users table
-      debugPrint('Error during sign in: $e');
+      debugPrint('Error during log in: $e');
       _status = AuthStatus.error;
 
       // Display the message from our custom exception

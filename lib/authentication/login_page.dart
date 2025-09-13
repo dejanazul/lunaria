@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 
       // Melakukan sign in
-      final success = await userProvider.signIn(
+      final success = await userProvider.logIn(
         email: emailC.text.trim(),
         password: passC.text,
       );

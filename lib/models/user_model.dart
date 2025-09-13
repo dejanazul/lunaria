@@ -1,5 +1,5 @@
 class UserModel {
-  final String? userId;
+  final String userId;
   final String? username;
   final String? passwordHash;
   final String? email;
@@ -54,7 +54,7 @@ class UserModel {
   // Create model from JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['user_id']?.toString(),
+      userId: json['user_id']!.toString(),
       username: json['username']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
       name: json['name']?.toString(),

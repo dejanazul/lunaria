@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/screens/home_pet/buy_cookies.dart';
 import '../../services/youtube_video_service.dart';
 import '../../widgets/cookie_counter.dart';
 import 'package:provider/provider.dart';
@@ -31,23 +32,85 @@ class _VideoListScreenState extends State<VideoListScreen> {
     setState(() {
       videos = fetched;
       loading = false;
+
+      // Unlock the first video automatically
+      if (fetched.isNotEmpty) {
+        unlocked.add(fetched[0]['id']);
+      }
     });
   }
 
   void unlockVideo(String id) {
     final cookieProvider = Provider.of<CookieProvider>(context, listen: false);
-    // if (cookieProvider.spendCookies(30)) {
-    //   setState(() {
-    //     unlocked.add(id);
-    //   });
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(SnackBar(content: Text('Video unlocked!')));
-    // } else {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(SnackBar(content: Text('Not enough cookies!')));
-    // }
+    // Konstanta untuk biaya unlock video
+    const int unlockCost = 30;
+    // Konstanta untuk minimum cookie yang harus dimiliki
+    const int minimumCookieBalance =
+        10; // User harus memiliki setidaknya 10 cookies setelah unlock
+
+    // Cek apakah pengguna memiliki cukup cookies dan memenuhi minimum balance
+    int remainingBalance = cookieProvider.cookies - unlockCost;
+    if (cookieProvider.cookies >= unlockCost &&
+        remainingBalance >= minimumCookieBalance) {
+      // Coba kurangi cookies
+      if (cookieProvider.spendCookies(unlockCost)) {
+        setState(() {
+          unlocked.add(id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Video berhasil dibuka!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        // Jika gagal menghabiskan cookies karena alasan lain
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal membuka video. Coba lagi.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else if (cookieProvider.cookies < unlockCost) {
+      // Jika cookies tidak cukup untuk unlock
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Cookie tidak cukup! Kamu perlu ${unlockCost} cookies untuk membuka video ini.',
+          ),
+          backgroundColor: Colors.red,
+          action: SnackBarAction(
+            label: 'DAPATKAN COOKIES',
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => BuyCookiesScreen()));
+            },
+            textColor: Colors.white,
+          ),
+        ),
+      );
+    } else {
+      // Jika cookies cukup untuk unlock tapi tidak memenuhi minimum balance
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Kamu harus memiliki minimum ${minimumCookieBalance} cookie setelah membuka video ini.',
+          ),
+          backgroundColor: Colors.orange,
+          action: SnackBarAction(
+            label: 'DAPATKAN LEBIH BANYAK',
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => BuyCookiesScreen()));
+            },
+            textColor: Colors.white,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -229,6 +292,7 @@ class _VideoCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],

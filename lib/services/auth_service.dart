@@ -5,6 +5,26 @@ import '../models/user_signup_model.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
+  String? get currentUserId {
+    final user = _supabase.auth.currentUser;
+    return user?.id;
+  }
+
+  Future<String?> getUserIdByEmail(String email) async {
+    try {
+      final userData =
+          await _supabase
+              .from('users')
+              .select('user_id')
+              .eq('email', email)
+              .single();
+
+      return userData['user_id'] as String?;
+    } catch (e) {
+      debugPrint('Error getting user_id by email: $e');
+      return null;
+    }
+  }
 
   Future<UserSignupModel?> addUserData({
     required UserSignupModel userData,
@@ -70,42 +90,41 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final userByEmail =
+          await _supabase
+              .from("users")
+              .select('*')
+              .eq("email", email)
+              .maybeSingle();
 
-      if (response.user != null) {
-        debugPrint('Login berhasil untuk user: ${response.user!.email}');
-
-        try {
-          // Ambil data user dari tabel users
-          final userData =
-              await _supabase
-                  .from('users')
-                  .select()
-                  .eq('user_id', response.user!.id)
-                  .single();
-
-          debugPrint('Data user berhasil diambil');
-          return UserModel.fromJson(userData);
-        } catch (e) {
-          // User exists in auth but not in users table
-          await _supabase.auth.signOut(); // Sign out the user
-          throw Exception(
-            'Akun tidak ditemukan. Silakan daftar terlebih dahulu.',
-          );
-        }
-      } else {
-        debugPrint('Login gagal: user null');
-        return null;
+      // 2. Jika email tidak ditemukan
+      if (userByEmail == null) {
+        debugPrint('Login gagal: email tidak ditemukan');
+        throw Exception(
+          'Email tidak terdaftar. Silakan daftar terlebih dahulu.',
+        );
       }
-    } on AuthException catch (e) {
-      debugPrint('Auth error: ${e.message}');
-      rethrow;
+
+      // 3. Jika email ditemukan, cek password
+      if (userByEmail['password_hash'] != password) {
+        debugPrint('Login gagal: password salah');
+        throw Exception('Password yang Anda masukkan salah.');
+      }
+
+      debugPrint('Login berhasil untuk user: ${userByEmail['username']}');
+      debugPrint('User ID: ${userByEmail['user_id']}');
+
+      return UserModel.fromJson(userByEmail);
+    } on PostgrestException catch (e) {
+      debugPrint('Database error: ${e.message}');
+      throw Exception('Gagal mengakses database: ${e.message}');
     } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
+      // Error lainnya
       debugPrint('Error saat login: $e');
-      rethrow;
+      throw Exception('Terjadi kesalahan. Silakan coba lagi.');
     }
   }
 
@@ -121,7 +140,7 @@ class AuthService {
         final userData =
             await _supabase
                 .from('users')
-                .select()
+                .select("*")
                 .eq('user_id', user.id)
                 .single();
 

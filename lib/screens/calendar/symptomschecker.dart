@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Symptomschecker extends StatelessWidget {
   const Symptomschecker({super.key});
@@ -26,7 +27,9 @@ class Symptomschecker extends StatelessWidget {
                   child: Text(
                     title,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (hasButton)
@@ -38,7 +41,9 @@ class Symptomschecker extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                     ),
                     child: const Text(
                       "Move Now",
@@ -73,52 +78,54 @@ class Symptomschecker extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: true,
+
         title: const Text(
           "Symptoms Checker",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
-      body: ListView(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              "All Self-assessments",
-              style: TextStyle(
+      body: SafeArea(
+        child: ListView(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                "All Self-assessments",
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.black),
+                  color: Colors.black,
+                ),
+              ),
             ),
-          ),
 
-          // 🔹 Cards
-          _buildCard(
-            title: "Tender Breasts",
-            description:
-                "Tender breasts are a common symptom that many people experience, especially before or during their menstrual cycle. This discomfort is often caused by hormonal changes, particularly fluctuations in estrogen and progesterone levels. In most cases, it's temporary and not a sign of a serious condition, but you can track it to notice any unusual changes.",
-          ),
-          _buildCard(
-            title: "Backache",
-            description:
-                "Backache is a common symptom that can occur for various reasons, including muscle strain, poor posture, or hormonal changes during the menstrual cycle. The discomfort may range from mild to severe and can affect your daily activities. Tracking when it happens can help identify patterns and possible triggers.",
-          ),
-          _buildCard(
-            title: "Vaginal Itching",
-            description:
-                "Vaginal itching is a symptom that can be caused by various factors, such as yeast infections, irritation from hygiene products, or changes in vaginal pH. It may be accompanied by other symptoms like redness, swelling, or unusual discharge. Monitoring the duration and severity can help determine if medical attention is needed.",
-          ),
-          _buildCard(
-            title: "Move to Relieve",
-            description:
-                "Regular physical activity can help ease discomfort and improve your overall well-being. Discover exercises tailored to your symptoms and start feeling better with simple, daily movements.",
-            hasButton: true,
-          ),
-          const SizedBox(height: 16),
-        ],
+            // 🔹 Cards
+            _buildCard(
+              title: "Tender Breasts",
+              description:
+                  "Tender breasts are a common symptom that many people experience, especially before or during their menstrual cycle. This discomfort is often caused by hormonal changes, particularly fluctuations in estrogen and progesterone levels. In most cases, it's temporary and not a sign of a serious condition, but you can track it to notice any unusual changes.",
+            ),
+            _buildCard(
+              title: "Backache",
+              description:
+                  "Backache is a common symptom that can occur for various reasons, including muscle strain, poor posture, or hormonal changes during the menstrual cycle. The discomfort may range from mild to severe and can affect your daily activities. Tracking when it happens can help identify patterns and possible triggers.",
+            ),
+            _buildCard(
+              title: "Vaginal Itching",
+              description:
+                  "Vaginal itching is a symptom that can be caused by various factors, such as yeast infections, irritation from hygiene products, or changes in vaginal pH. It may be accompanied by other symptoms like redness, swelling, or unusual discharge. Monitoring the duration and severity can help determine if medical attention is needed.",
+            ),
+            _buildCard(
+              title: "Move to Relieve",
+              description:
+                  "Regular physical activity can help ease discomfort and improve your overall well-being. Discover exercises tailored to your symptoms and start feeling better with simple, daily movements.",
+              hasButton: true,
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
