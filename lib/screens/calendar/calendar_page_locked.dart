@@ -48,19 +48,38 @@ class _CalendarPageState extends State<CalendarPage>
     );
 
     // Update phase colors when data is available
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Cek status analisis dari provider
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Ambil data user dari provider
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
       final calendarAiProvider = Provider.of<CalendarAiProvider>(
         context,
         listen: false,
       );
-      if (calendarAiProvider.hasCompletedAnalysis) {
-        // Jika sudah pernah melakukan analisis, buka kunci
+
+      // Ambil userId dari userProvider
+      final String? userId = userProvider.userId;
+
+      if (userId != null) {
+        // Set loading state
         setState(() {
-          _isLocked = false;
-          // Jalankan animasi untuk membuka kunci
-          _animationController.forward();
+          _isAnalyzing = true;
         });
+
+        // Periksa apakah sudah ada analisis tersimpan
+        if (!calendarAiProvider.hasCompletedAnalysis) {
+          // Jika belum, ambil data menstrual cycle dari Supabase dan analisis
+          await calendarAiProvider.analyzeMenstrualCycle(userId);
+        }
+
+        // Jika sudah pernah melakukan analisis, buka kunci
+        if (calendarAiProvider.hasCompletedAnalysis) {
+          setState(() {
+            _isLocked = false;
+            _isAnalyzing = false;
+            // Jalankan animasi untuk membuka kunci
+            _animationController.forward();
+          });
+        }
       }
 
       _updatePhaseColors();
@@ -202,6 +221,7 @@ class _CalendarPageState extends State<CalendarPage>
   Widget build(BuildContext context) {
     // Dengarkan perubahan pada provider untuk update warna fase dan status kunci
     final calendarAiProvider = Provider.of<CalendarAiProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
 
     // Update status kunci berdasarkan hasCompletedAnalysis
     if (calendarAiProvider.hasCompletedAnalysis && _isLocked) {
@@ -220,6 +240,17 @@ class _CalendarPageState extends State<CalendarPage>
       });
     }
 
+    // Cek apakah user sudah login dan belum memulai analisis
+    if (userProvider.userId != null &&
+        !calendarAiProvider.hasCompletedAnalysis &&
+        !_isAnalyzing &&
+        !calendarAiProvider.isLoading) {
+      // Auto trigger analisis jika user login tapi belum ada data
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _analyzeWithAI();
+      });
+    }
+
     final int currentIndex = 0;
 
     return Scaffold(
@@ -227,352 +258,418 @@ class _CalendarPageState extends State<CalendarPage>
       body: Stack(
         children: [
           // Main content
-          SingleChildScrollView(
-            physics:
-                _isLocked
-                    ? const NeverScrollableScrollPhysics()
-                    : const BouncingScrollPhysics(),
-            child: Opacity(
-              opacity: _isLocked ? 0.3 : 1.0,
-              child: AbsorbPointer(
-                absorbing: _isLocked,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom + 120,
-                  ),
-                  child: Column(
-                    children: [
-                      // 🔹 Header Calendar
-                      Container(
-                        padding: EdgeInsets.only(
-                          top: ResponsiveHelper.isTablet(context) ? 50 : 40,
-                          left: ResponsiveHelper.isTablet(context) ? 24 : 16,
-                          right: ResponsiveHelper.isTablet(context) ? 24 : 16,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.pink.shade300,
-                              Colors.pink.shade200,
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(
-                              ResponsiveHelper.isTablet(context) ? 50 : 40,
+          _isAnalyzing || calendarAiProvider.isLoading
+              // Tampilkan loading indicator jika sedang menganalisis atau loading data
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(color: Colors.pink),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Mengambil data menstruasi dari Supabase...',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              )
+              // Tampilkan error jika ada
+              : calendarAiProvider.errorMessage != null
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error: ${calendarAiProvider.errorMessage}',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleMedium?.copyWith(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _analyzeWithAI(),
+                      child: const Text('Coba lagi'),
+                    ),
+                  ],
+                ),
+              )
+              // Tampilkan konten normal
+              : SingleChildScrollView(
+                physics:
+                    _isLocked
+                        ? const NeverScrollableScrollPhysics()
+                        : const BouncingScrollPhysics(),
+                child: Opacity(
+                  opacity: _isLocked ? 0.3 : 1.0,
+                  child: AbsorbPointer(
+                    absorbing: _isLocked,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).padding.bottom + 120,
+                      ),
+                      child: Column(
+                        children: [
+                          // 🔹 Header Calendar
+                          Container(
+                            padding: EdgeInsets.only(
+                              top: ResponsiveHelper.isTablet(context) ? 50 : 40,
+                              left:
+                                  ResponsiveHelper.isTablet(context) ? 24 : 16,
+                              right:
+                                  ResponsiveHelper.isTablet(context) ? 24 : 16,
                             ),
-                            bottomRight: Radius.circular(
-                              ResponsiveHelper.isTablet(context) ? 50 : 40,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.pink.shade300,
+                                  Colors.pink.shade200,
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(
+                                  ResponsiveHelper.isTablet(context) ? 50 : 40,
+                                ),
+                                bottomRight: Radius.circular(
+                                  ResponsiveHelper.isTablet(context) ? 50 : 40,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        child: SizedBox(
-                          height:
-                              ResponsiveHelper.isTablet(context) ? 375 : 325,
-                          child: Column(
-                            children: [
-                              // Top bar
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            child: SizedBox(
+                              height:
+                                  ResponsiveHelper.isTablet(context)
+                                      ? 375
+                                      : 325,
+                              child: Column(
                                 children: [
-                                  // IconButton(
-                                  //   icon: const Icon(
-                                  //     Icons.add,
-                                  //     color: Colors.white,
-                                  //   ),
-                                  //   onPressed: () {
-                                  //     Navigator.push(
-                                  //       context,
-                                  //       MaterialPageRoute(
-                                  //         builder: (_) => const Logactivity(),
-                                  //       ),
-                                  //     );
-                                  //   },
-                                  // ),
-                                  GestureDetector(
-                                    onTap: _pickMonthYear,
+                                  // Top bar
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // IconButton(
+                                      //   icon: const Icon(
+                                      //     Icons.add,
+                                      //     color: Colors.white,
+                                      //   ),
+                                      //   onPressed: () {
+                                      //     Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //         builder: (_) => const Logactivity(),
+                                      //       ),
+                                      //     );
+                                      //   },
+                                      // ),
+                                      GestureDetector(
+                                        onTap: _pickMonthYear,
+                                        child: Text(
+                                          _monthYear,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize:
+                                                ResponsiveHelper.getFontSize(
+                                                  context,
+                                                  small: 16,
+                                                  medium: 18,
+                                                  large: 20,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                      // IconButton(
+                                      //   icon: const Icon(
+                                      //     Icons.calendar_today,
+                                      //     color: Colors.white,
+                                      //   ),
+                                      //   onPressed: () {
+                                      //     Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //         builder:
+                                      //             (_) => const DetailCalendar(),
+                                      //       ),
+                                      //     );
+                                      //   },
+                                      // ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 17),
+
+                                  // 🔹 Mini Calendar
+                                  SizedBox(
+                                    height:
+                                        ResponsiveHelper.isTablet(context)
+                                            ? 100
+                                            : 80,
+                                    child: PageView.builder(
+                                      controller: PageController(
+                                        initialPage: 5000,
+                                      ),
+                                      onPageChanged: (index) {
+                                        setState(() {
+                                          _focusedDate = DateTime.now().add(
+                                            Duration(days: (index - 5000) * 7),
+                                          );
+                                        });
+                                      },
+                                      itemBuilder: (context, index) {
+                                        final baseDate = DateTime.now().add(
+                                          Duration(days: (index - 5000) * 7),
+                                        );
+                                        final weekDates = _getWeekDates(
+                                          baseDate,
+                                        );
+
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children:
+                                              weekDates.map((date) {
+                                                bool isToday =
+                                                    DateUtils.isSameDay(
+                                                      date,
+                                                      DateTime.now(),
+                                                    );
+                                                // Cek apakah tanggal ada dalam peta fase
+                                                final normalizedDate = DateTime(
+                                                  date.year,
+                                                  date.month,
+                                                  date.day,
+                                                );
+                                                final phaseColor =
+                                                    _phaseColorMap[normalizedDate];
+
+                                                return _DateItem(
+                                                  label: DateFormat(
+                                                    'E',
+                                                  ).format(date),
+                                                  day: date.day.toString(),
+                                                  isToday: isToday,
+                                                  phaseColor:
+                                                      phaseColor, // Teruskan warna fase
+                                                );
+                                              }).toList(),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 24),
+
+                                  // 🔹 Period Info
+                                  Consumer<CalendarAiProvider>(
+                                    builder: (context, provider, child) {
+                                      // Dapatkan informasi fase saat ini
+                                      final phaseInfo =
+                                          provider.getCurrentPhaseInfo();
+                                      final phaseName = phaseInfo['phaseName'];
+                                      final phaseDay = phaseInfo['phaseDay'];
+
+                                      // Format nama fase untuk tampilan
+                                      String displayPhaseName = 'Unknown';
+                                      if (phaseName != 'Unknown') {
+                                        // Konversi nama fase ke bahasa Indonesia dengan kapitalisasi huruf pertama
+                                        switch (phaseName.toLowerCase()) {
+                                          case 'menstruasi':
+                                            displayPhaseName = 'Menstruasi';
+                                            break;
+                                          case 'folikular':
+                                            displayPhaseName = 'Folikular';
+                                            break;
+                                          case 'ovulasi':
+                                            displayPhaseName = 'Ovulasi';
+                                            break;
+                                          case 'luteal':
+                                            displayPhaseName = 'Luteal';
+                                            break;
+                                          default:
+                                            // Kapitalisasi huruf pertama
+                                            displayPhaseName =
+                                                phaseName
+                                                    .substring(0, 1)
+                                                    .toUpperCase() +
+                                                phaseName
+                                                    .substring(1)
+                                                    .toLowerCase();
+                                        }
+                                      }
+
+                                      return Column(
+                                        children: [
+                                          Text(
+                                            displayPhaseName,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  ResponsiveHelper.getFontSize(
+                                                    context,
+                                                    small: 14,
+                                                    medium: 16,
+                                                    large: 18,
+                                                  ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                ResponsiveHelper.isMobile(
+                                                      context,
+                                                    )
+                                                    ? 4
+                                                    : 6,
+                                          ),
+                                          Text(
+                                            "Day ${phaseDay > 0 ? phaseDay.toString() : '?'}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  ResponsiveHelper.getFontSize(
+                                                    context,
+                                                    small: 32,
+                                                    medium: 36,
+                                                    large: 40,
+                                                  ),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(
+                                    height:
+                                        ResponsiveHelper.isMobile(context)
+                                            ? 16
+                                            : 20,
+                                  ),
+
+                                  // 🔹 Log Activity Button
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.pink,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal:
+                                            ResponsiveHelper.isTablet(context)
+                                                ? 50
+                                                : 40,
+                                        vertical:
+                                            ResponsiveHelper.isTablet(context)
+                                                ? 16
+                                                : 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          ResponsiveHelper.isTablet(context)
+                                              ? 28
+                                              : 24,
+                                        ),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => const DetailCalendar(),
+                                        ),
+                                      );
+                                    },
                                     child: Text(
-                                      _monthYear,
+                                      "Log Period",
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: ResponsiveHelper.getFontSize(
                                           context,
-                                          small: 16,
-                                          medium: 18,
-                                          large: 20,
+                                          small: 14,
+                                          medium: 15,
+                                          large: 16,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  // IconButton(
-                                  //   icon: const Icon(
-                                  //     Icons.calendar_today,
-                                  //     color: Colors.white,
-                                  //   ),
-                                  //   onPressed: () {
-                                  //     Navigator.push(
-                                  //       context,
-                                  //       MaterialPageRoute(
-                                  //         builder:
-                                  //             (_) => const DetailCalendar(),
-                                  //       ),
-                                  //     );
-                                  //   },
-                                  // ),
+                                  SizedBox(
+                                    height:
+                                        ResponsiveHelper.isTablet(context)
+                                            ? 30
+                                            : 24,
+                                  ),
                                 ],
                               ),
+                            ),
+                          ),
 
-                              const SizedBox(height: 17),
-
-                              // 🔹 Mini Calendar
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.isTablet(context)
-                                        ? 100
-                                        : 80,
-                                child: PageView.builder(
-                                  controller: PageController(initialPage: 5000),
-                                  onPageChanged: (index) {
-                                    setState(() {
-                                      _focusedDate = DateTime.now().add(
-                                        Duration(days: (index - 5000) * 7),
-                                      );
-                                    });
-                                  },
-                                  itemBuilder: (context, index) {
-                                    final baseDate = DateTime.now().add(
-                                      Duration(days: (index - 5000) * 7),
-                                    );
-                                    final weekDates = _getWeekDates(baseDate);
-
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children:
-                                          weekDates.map((date) {
-                                            bool isToday = DateUtils.isSameDay(
-                                              date,
-                                              DateTime.now(),
-                                            );
-                                            // Cek apakah tanggal ada dalam peta fase
-                                            final normalizedDate = DateTime(
-                                              date.year,
-                                              date.month,
-                                              date.day,
-                                            );
-                                            final phaseColor =
-                                                _phaseColorMap[normalizedDate];
-
-                                            return _DateItem(
-                                              label: DateFormat(
-                                                'E',
-                                              ).format(date),
-                                              day: date.day.toString(),
-                                              isToday: isToday,
-                                              phaseColor:
-                                                  phaseColor, // Teruskan warna fase
-                                            );
-                                          }).toList(),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // 🔹 Period Info
-                              Consumer<CalendarAiProvider>(
-                                builder: (context, provider, child) {
-                                  // Dapatkan informasi fase saat ini
-                                  final phaseInfo =
-                                      provider.getCurrentPhaseInfo();
-                                  final phaseName = phaseInfo['phaseName'];
-                                  final phaseDay = phaseInfo['phaseDay'];
-
-                                  // Format nama fase untuk tampilan
-                                  String displayPhaseName = 'Unknown';
-                                  if (phaseName != 'Unknown') {
-                                    // Konversi nama fase ke bahasa Indonesia dengan kapitalisasi huruf pertama
-                                    switch (phaseName.toLowerCase()) {
-                                      case 'menstruasi':
-                                        displayPhaseName = 'Menstruasi';
-                                        break;
-                                      case 'folikular':
-                                        displayPhaseName = 'Folikular';
-                                        break;
-                                      case 'ovulasi':
-                                        displayPhaseName = 'Ovulasi';
-                                        break;
-                                      case 'luteal':
-                                        displayPhaseName = 'Luteal';
-                                        break;
-                                      default:
-                                        // Kapitalisasi huruf pertama
-                                        displayPhaseName =
-                                            phaseName
-                                                .substring(0, 1)
-                                                .toUpperCase() +
-                                            phaseName
-                                                .substring(1)
-                                                .toLowerCase();
-                                    }
-                                  }
-
-                                  return Column(
-                                    children: [
-                                      Text(
-                                        displayPhaseName,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize:
-                                              ResponsiveHelper.getFontSize(
-                                                context,
-                                                small: 14,
-                                                medium: 16,
-                                                large: 18,
-                                              ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            ResponsiveHelper.isMobile(context)
-                                                ? 4
-                                                : 6,
-                                      ),
-                                      Text(
-                                        "Day ${phaseDay > 0 ? phaseDay.toString() : '?'}",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize:
-                                              ResponsiveHelper.getFontSize(
-                                                context,
-                                                small: 32,
-                                                medium: 36,
-                                                large: 40,
-                                              ),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.isMobile(context)
-                                        ? 16
-                                        : 20,
-                              ),
-
-                              // 🔹 Log Activity Button
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.pink,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal:
-                                        ResponsiveHelper.isTablet(context)
-                                            ? 50
-                                            : 40,
-                                    vertical:
-                                        ResponsiveHelper.isTablet(context)
-                                            ? 16
-                                            : 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      ResponsiveHelper.isTablet(context)
-                                          ? 28
-                                          : 24,
-                                    ),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const DetailCalendar(),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  "Log Period",
+                          // 🔹 My Cycles Section
+                          Padding(
+                            padding: EdgeInsets.all(
+                              ResponsiveHelper.isMobile(context)
+                                  ? 16
+                                  : (ResponsiveHelper.isTablet(context)
+                                      ? 20
+                                      : 24),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "My Cycles",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: ResponsiveHelper.getFontSize(
                                       context,
-                                      small: 14,
-                                      medium: 15,
-                                      large: 16,
+                                      small: 18,
+                                      medium: 20,
+                                      large: 24,
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.isTablet(context)
-                                        ? 30
-                                        : 24,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // 🔹 My Cycles Section
-                      Padding(
-                        padding: EdgeInsets.all(
-                          ResponsiveHelper.isMobile(context)
-                              ? 16
-                              : (ResponsiveHelper.isTablet(context) ? 20 : 24),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "My Cycles",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: ResponsiveHelper.getFontSize(
-                                  context,
-                                  small: 18,
-                                  medium: 20,
-                                  large: 24,
+                                SizedBox(
+                                  height:
+                                      ResponsiveHelper.isMobile(context)
+                                          ? 16
+                                          : 20,
                                 ),
-                              ),
+                                _detailsCard(),
+                                SizedBox(
+                                  height:
+                                      ResponsiveHelper.isMobile(context)
+                                          ? 16
+                                          : 20,
+                                ),
+                                _cycleHistoryCard(context),
+                                SizedBox(
+                                  height:
+                                      ResponsiveHelper.isMobile(context)
+                                          ? 16
+                                          : 20,
+                                ),
+                                _symptomsCard(context),
+                                SizedBox(
+                                  height:
+                                      ResponsiveHelper.isMobile(context)
+                                          ? 16
+                                          : 20,
+                                ),
+                                _symptomsCheckerCard(context),
+                              ],
                             ),
-                            SizedBox(
-                              height:
-                                  ResponsiveHelper.isMobile(context) ? 16 : 20,
-                            ),
-                            _detailsCard(),
-                            SizedBox(
-                              height:
-                                  ResponsiveHelper.isMobile(context) ? 16 : 20,
-                            ),
-                            _cycleHistoryCard(context),
-                            SizedBox(
-                              height:
-                                  ResponsiveHelper.isMobile(context) ? 16 : 20,
-                            ),
-                            _symptomsCard(context),
-                            SizedBox(
-                              height:
-                                  ResponsiveHelper.isMobile(context) ? 16 : 20,
-                            ),
-                            _symptomsCheckerCard(context),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
 
           // Lock Overlay - shown when the calendar is locked
           if (_isLocked)
