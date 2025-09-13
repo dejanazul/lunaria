@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/providers/calendar_ai_provider.dart';
 import 'package:lunaria/providers/signup_data_provider.dart' as signup;
 import 'package:lunaria/providers/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => signup.SignupDataProvider()),
         ChangeNotifierProvider(create: (_) => LevelProvider()),
+        ChangeNotifierProvider(create: (_) => CalendarAiProvider()),
       ],
       child: const MainApp(),
     ),

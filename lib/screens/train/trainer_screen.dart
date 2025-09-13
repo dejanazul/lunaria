@@ -304,7 +304,7 @@ class _TrainerScreenState extends State<TrainerScreen>
   Widget _buildTrainerList() {
     // Only show Rina Pratama, but filter by tag
     // Only show if tag matches (for demo, always show HIIT)
-    if (selectedTag != 'All' && selectedTag != 'HIIT') {
+    if (selectedTag != 'All' && selectedTag != 'Yoga') {
       return Center(
         child: Text(
           'Belum ada trainer untuk tag "$selectedTag".',
@@ -334,7 +334,9 @@ class _TrainerScreenState extends State<TrainerScreen>
                   shape: BoxShape.circle,
                   color: Color(0xFFE6E6E6),
                   image: DecorationImage(
-                    image: AssetImage('assets/images/rina-pratama_trainer.png'),
+                    image: AssetImage(
+                      'assets/images/Andiana_Setianingsih.jpeg',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -345,7 +347,7 @@ class _TrainerScreenState extends State<TrainerScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rina Pratama',
+                      'Andiana Setianingsih',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
@@ -359,7 +361,7 @@ class _TrainerScreenState extends State<TrainerScreen>
                         Icon(Icons.star, color: Color(0xFFFFC107), size: 18),
                         SizedBox(width: 4),
                         Text(
-                          '4.5',
+                          '4.9',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w500,
@@ -369,7 +371,7 @@ class _TrainerScreenState extends State<TrainerScreen>
                         ),
                         SizedBox(width: 2),
                         Text(
-                          '(200)',
+                          '',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
@@ -394,7 +396,7 @@ class _TrainerScreenState extends State<TrainerScreen>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'HIIT',
+                        'Yoga',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,

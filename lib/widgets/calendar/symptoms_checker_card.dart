@@ -39,14 +39,14 @@ class SymptomsCheckerCard extends StatelessWidget {
             child: Row(
               children: [
                 Image.asset(
-                  'assets/images/pet_illustration.png',
-                  width: 30,
-                  height: 30,
+                  'assets/images/pet_main_image.png',
+                  width: 130,
+                  height: 130,
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text(
-                    "I can help you understand your symptoms 😊",
+                    "I can help you understand your symptoms 🐇",
                     style: TextStyle(color: AppColors.secondary),
                   ),
                 ),

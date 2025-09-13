@@ -35,6 +35,7 @@ flutter:
   # Assets configuration
   assets:
     - assets/images/
+    - assets/images/rekomendasi_olahraga/
     - assets/icons/
     - assets/icons/activities/
     - assets/icons/typical_day/

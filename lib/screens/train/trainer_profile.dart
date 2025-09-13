@@ -60,13 +60,13 @@ class TrainerProfileScreen extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 45,
                             backgroundImage: AssetImage(
-                              'assets/images/rina-pratama_trainer.png',
+                              'assets/images/Andiana_Setianingsih.jpeg',
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Rina Pratama',
+                          'Andiana Setianingsih',
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'Poppins',
@@ -94,7 +94,7 @@ class TrainerProfileScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 4),
                             Text(
-                              '4.5',
+                              '4.9',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Poppins',
@@ -104,7 +104,7 @@ class TrainerProfileScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 2),
                             Text(
-                              '(200)',
+                              '',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Poppins',
@@ -137,43 +137,9 @@ class TrainerProfileScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         _infoCard(
                           title: 'Years of Experience',
-                          content: '5+ years in professional fitness training.',
+                          content: '10+ years experience of yoga.',
                         ),
                         const SizedBox(height: 16),
-                        _infoCard(
-                          title: 'Specializations',
-                          contentWidget: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              _BulletText(
-                                'High-intensity Interval Training (HIIT)',
-                              ),
-                              _BulletText('Functional strength training'),
-                              _BulletText('Endurance and conditioning'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _infoCard(
-                          title: 'Certifications & Achievements',
-                          contentWidget: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              _BulletText(
-                                'Certified HIIT Instructor (ACE – American Council on Exercise)',
-                              ),
-                              _BulletText(
-                                'First place, Local Fitness Challenge Yogyakarta 2022',
-                              ),
-                              _BulletText(
-                                'Certified Personal Trainer (NASM – National Academy of Sports Medicine)',
-                              ),
-                              _BulletText(
-                                'Group Fitness Instructor Certification (AFAA – Athletics and Fitness Association of America)',
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -181,83 +147,8 @@ class TrainerProfileScreen extends StatelessWidget {
               ),
             ),
           ),
+
           // Floating Set Schedule + Chat Icon Bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 16,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const SetScheduleScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Set Schedule',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: SvgPicture.asset(
-                        'assets/icons/chat_icon-trainer.svg',
-                        width: 28,
-                        height: 28,
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ChatTrainerScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

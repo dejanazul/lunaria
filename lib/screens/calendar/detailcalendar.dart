@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lunaria/providers/calendar_ai_provider.dart';
+import 'package:provider/provider.dart';
+import 'rekomendasi_olahraga.dart';
 
 class DetailCalendar extends StatefulWidget {
   const DetailCalendar({super.key});
@@ -11,11 +14,12 @@ class DetailCalendar extends StatefulWidget {
 class _DetailCalendarState extends State<DetailCalendar> {
   bool _isEditing = false;
 
-  final Set<DateTime> _periodDays = {
-    DateTime.utc(2025, 9, 2),
-    DateTime.utc(2025, 9, 3),
-    DateTime.utc(2025, 9, 4),
-  };
+  final Set<DateTime> _periodDays = {};
+
+  // Map untuk menyimpan warna fase berdasarkan tanggal
+  final Map<DateTime, Color> _phaseColorMap = {};
+  // Map untuk menyimpan nama fase berdasarkan tanggal
+  final Map<DateTime, String> _phaseNameMap = {};
 
   late DateTime today;
   late int selectedMonth;
@@ -29,10 +33,88 @@ class _DetailCalendarState extends State<DetailCalendar> {
     today = DateTime.now();
     selectedMonth = today.month;
     selectedYear = today.year;
+
+    // Update fase setelah widget dibangun
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updatePhaseMaps();
+    });
+  }
+
+  // Metode untuk memperbarui peta fase berdasarkan data dari provider
+  void _updatePhaseMaps() {
+    final calendarAiProvider = Provider.of<CalendarAiProvider>(
+      context,
+      listen: false,
+    );
+    if (calendarAiProvider.currentAnalysis != null) {
+      final phases = calendarAiProvider.currentAnalysis!.periodPhase;
+      _phaseColorMap.clear();
+      _phaseNameMap.clear();
+
+      for (final phase in phases) {
+        final start = phase.startDate;
+        final end = phase.endDate;
+        final color = _getPhaseColor(phase.phaseName);
+
+        // Isi semua tanggal dalam rentang dengan warna dan nama fase
+        for (var i = 0; i <= end.difference(start).inDays; i++) {
+          final date = DateTime(start.year, start.month, start.day + i);
+          _phaseColorMap[date] = color;
+          _phaseNameMap[date] = phase.phaseName;
+        }
+      }
+
+      setState(() {});
+    }
+  }
+
+  // Mendapatkan warna sesuai fase
+  Color _getPhaseColor(String phaseName) {
+    switch (phaseName.toLowerCase()) {
+      case 'menstruasi':
+        return const Color.fromARGB(255, 247, 16, 0);
+      case 'folikular':
+        return Colors.purple.shade200; // ungu muda
+      case 'ovulasi':
+        return Colors.purple.shade800; // ungu tua
+      case 'luteal':
+        return Colors.grey.shade400; // abu-abu
+      default:
+        return Colors.grey.shade300;
+    }
+  }
+
+  // Method to get current phase symptoms based on today's date
+  List<String> _getCurrentPhaseSymptoms() {
+    final today = DateTime.now();
+    final phaseName = _phaseNameMap[today] ?? '';
+
+    // Return common symptoms based on phase
+    switch (phaseName.toLowerCase()) {
+      case 'menstruasi':
+        return ['Cramps', 'Backache', 'Abdominal Pain'];
+      case 'folikular':
+        return ['Energy fluctuations', 'Mood swings'];
+      case 'ovulasi':
+        return ['Mild pain', 'Tender breasts', 'Bloating'];
+      case 'luteal':
+        return ['Fatigue', 'Bloating', 'Headache', 'Mood changes'];
+      default:
+        return ['General discomfort'];
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Dengarkan perubahan pada provider untuk update warna fase
+    final calendarAiProvider = Provider.of<CalendarAiProvider>(context);
+    if (calendarAiProvider.currentAnalysis != null) {
+      // Update fase ketika analisis berubah
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updatePhaseMaps();
+      });
+    }
+
     final daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
     final days = List.generate(
       daysInMonth,
@@ -57,6 +139,23 @@ class _DetailCalendarState extends State<DetailCalendar> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.fitness_center, color: Colors.purple),
+            tooltip: 'Exercise Recommendations',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => RekomendasiOlahragaScreen(
+                        symptoms: _getCurrentPhaseSymptoms(),
+                      ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -69,8 +168,9 @@ class _DetailCalendarState extends State<DetailCalendar> {
                   child: _buildDropdown(
                     value: selectedMonth,
                     items: List.generate(12, (i) {
-                      final monthName =
-                          DateFormat.MMMM().format(DateTime(0, i + 1));
+                      final monthName = DateFormat.MMMM().format(
+                        DateTime(0, i + 1),
+                      );
                       return DropdownMenuItem(
                         value: i + 1,
                         child: Text(monthName),
@@ -87,12 +187,13 @@ class _DetailCalendarState extends State<DetailCalendar> {
                 Expanded(
                   child: _buildDropdown(
                     value: selectedYear,
-                    items: years.map((year) {
-                      return DropdownMenuItem(
-                        value: year,
-                        child: Text("$year"),
-                      );
-                    }).toList(),
+                    items:
+                        years.map((year) {
+                          return DropdownMenuItem(
+                            value: year,
+                            child: Text("$year"),
+                          );
+                        }).toList(),
                     onChanged: (val) {
                       setState(() {
                         selectedYear = val!;
@@ -110,8 +211,7 @@ class _DetailCalendarState extends State<DetailCalendar> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (i) {
-                final weekday =
-                    DateFormat.E().format(DateTime(2023, 1, i + 2));
+                final weekday = DateFormat.E().format(DateTime(2023, 1, i + 2));
                 return Expanded(
                   child: Center(
                     child: Text(
@@ -131,8 +231,10 @@ class _DetailCalendarState extends State<DetailCalendar> {
           // Kalender grid
           Expanded(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 8.0,
+              ),
               child: GridView.builder(
                 physics: const BouncingScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -143,62 +245,89 @@ class _DetailCalendarState extends State<DetailCalendar> {
                 itemCount: days.length,
                 itemBuilder: (context, index) {
                   final day = days[index];
-                  final isPeriodDay = _periodDays.any((d) =>
-                      d.year == day.year &&
-                      d.month == day.month &&
-                      d.day == day.day);
-                  final isToday = day.year == today.year &&
+                  final isPeriodDay = _periodDays.any(
+                    (d) =>
+                        d.year == day.year &&
+                        d.month == day.month &&
+                        d.day == day.day,
+                  );
+                  final isToday =
+                      day.year == today.year &&
                       day.month == today.month &&
                       day.day == today.day;
+
+                  // Cek apakah tanggal memiliki fase
+                  final normalizedDate = DateTime(day.year, day.month, day.day);
+                  final phaseColor = _phaseColorMap[normalizedDate];
+                  final phaseName = _phaseNameMap[normalizedDate];
 
                   return GestureDetector(
                     onTap: () {
                       if (_isEditing) {
                         setState(() {
                           if (isPeriodDay) {
-                            _periodDays.removeWhere((d) =>
-                                d.year == day.year &&
-                                d.month == day.month &&
-                                d.day == day.day);
+                            _periodDays.removeWhere(
+                              (d) =>
+                                  d.year == day.year &&
+                                  d.month == day.month &&
+                                  d.day == day.day,
+                            );
                           } else {
                             _periodDays.add(day);
                           }
                         });
+                      } else if (phaseName != null) {
+                        // Tampilkan info fase saat diklik
+                        _showPhaseInfo(context, phaseName, normalizedDate);
                       }
                     },
-                    child: Center( // ⬅️ biar lingkaran fix ukurannya
+                    child: Center(
+                      // ⬅️ biar lingkaran fix ukurannya
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeOut,
                         alignment: Alignment.center,
-                        width: 33,   // ⬅️ ukuran lingkaran fix
-                        height: 33,  // ⬅️ ukuran lingkaran fix
+                        width: 33, // ⬅️ ukuran lingkaran fix
+                        height: 33, // ⬅️ ukuran lingkaran fix
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isPeriodDay
-                              ? Colors.pink.shade400
-                              : (isToday
-                                  ? Colors.blue.shade400.withOpacity(0.85)
-                                  : Colors.transparent),
+                          color:
+                              phaseColor != null
+                                  ? phaseColor.withOpacity(0.8)
+                                  : (isPeriodDay
+                                      ? Colors.pink.shade400
+                                      : (isToday
+                                          ? Colors.blue.shade400.withOpacity(
+                                            0.85,
+                                          )
+                                          : Colors.transparent)),
                           border: Border.all(
-                            color: isPeriodDay
-                                ? Colors.pink.shade300
-                                : (isToday
-                                    ? Colors.blue.shade300
-                                    : Colors.grey.shade300),
-                            width: isToday ? 1.5 : 1,
+                            color:
+                                phaseColor ??
+                                (isPeriodDay
+                                    ? Colors.pink.shade300
+                                    : (isToday
+                                        ? Colors.blue.shade300
+                                        : Colors.grey.shade300)),
+                            width: phaseColor != null || isToday ? 1.5 : 1,
                           ),
                         ),
                         child: Text(
                           "${day.day}",
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: isPeriodDay || isToday
-                                ? FontWeight.bold
-                                : FontWeight.w500,
-                            color: isPeriodDay || isToday
-                                ? Colors.white
-                                : Colors.black87,
+                            fontWeight:
+                                isPeriodDay || isToday || phaseColor != null
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                            color:
+                                (phaseColor != null &&
+                                            phaseColor.computeLuminance() <
+                                                0.5) ||
+                                        isPeriodDay ||
+                                        isToday
+                                    ? Colors.white
+                                    : Colors.black87,
                           ),
                         ),
                       ),
@@ -211,91 +340,171 @@ class _DetailCalendarState extends State<DetailCalendar> {
 
           // Tombol bawah (floating style)
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                )
-              ],
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
             ),
-            child: !_isEditing
-                ? ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pink.shade400,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+            child:
+                !_isEditing
+                    ? ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.shade400,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = true;
-                      });
-                    },
-                    child: const Text(
-                      "Edit period dates",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                    ),
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.pink.shade400,
-                            side: BorderSide(
-                                color: Colors.pink.shade400, width: 1.5),
-                            minimumSize: const Size(double.infinity, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isEditing = false;
-                            });
-                          },
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
+                      onPressed: () {
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      },
+                      child: const Text(
+                        "Edit period dates",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink.shade400,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                    )
+                    : Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.pink.shade400,
+                              side: BorderSide(
+                                color: Colors.pink.shade400,
+                                width: 1.5,
+                              ),
+                              minimumSize: const Size(double.infinity, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isEditing = false;
-                            });
-                          },
-                          child: const Text(
-                            "Save",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            onPressed: () {
+                              setState(() {
+                                _isEditing = false;
+                              });
+                            },
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.pink.shade400,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isEditing = false;
+                              });
+                            },
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
           ),
         ],
       ),
+    );
+  }
+
+  // Metode untuk menampilkan informasi fase dalam dialog
+  void _showPhaseInfo(BuildContext context, String phaseName, DateTime date) {
+    final calendarAiProvider = Provider.of<CalendarAiProvider>(
+      context,
+      listen: false,
+    );
+    final description = calendarAiProvider.getPhaseDescription(phaseName);
+    final tips = calendarAiProvider.getPhaseTips(phaseName);
+    final phaseColor = _getPhaseColor(phaseName);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: phaseColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Fase ${phaseName.substring(0, 1).toUpperCase()}${phaseName.substring(1)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${DateFormat('d MMMM yyyy').format(date)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(description),
+                const SizedBox(height: 16),
+                const Text(
+                  'Tips:',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                ...tips.map(
+                  (tip) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('• ', style: TextStyle(fontSize: 15)),
+                        Expanded(child: Text(tip)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup'),
+            ),
+          ],
+        );
+      },
     );
   }
 

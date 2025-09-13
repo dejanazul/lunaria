@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lunaria/screens/profile/profile_screen.dart';
 import 'route_names.dart';
 import 'route_generator.dart';
-import '../screens/calendar/calendar_page.dart';
+import '../screens/calendar/calendar_page_locked.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
 import '../screens/community/community_screen.dart';

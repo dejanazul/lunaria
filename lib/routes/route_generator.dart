@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:lunaria/screens/calendar/calendar_page.dart';
+import 'package:lunaria/screens/calendar/calendar_page_locked.dart';
 import 'route_names.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
 import '../screens/home_pet/buy_cookies.dart';
 import '../screens/community/community_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/calendar/rekomendasi_olahraga.dart';
 import '../authentication/login_page.dart';
 import '../authentication/sign_up_page.dart';
 
@@ -30,6 +31,9 @@ class RouteGenerator {
         return _createRoute(const SignUpPage());
       case RouteNames.buyCookies:
         return _createRoute(BuyCookiesScreen());
+      case RouteNames.rekomendasiOlahraga:
+        final symptoms = settings.arguments as List<String>? ?? [];
+        return _createRoute(RekomendasiOlahragaScreen(symptoms: symptoms));
       default:
         return _createRoute(const VPHomeScreen()); // Default ke home
     }
