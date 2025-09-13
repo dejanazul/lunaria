@@ -11,11 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: 'https://vusuygyolfeyaczrjsjh.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1c3V5Z3lvbGZleWFjenJqc2poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjcyMzQsImV4cCI6MjA3MjQwMzIzNH0.6mlnuoYNxlHzKqCSzirxnT_bir5N9FELpmHUw5sn64U',
-  );
+  await Supabase.initialize(url: 'SUPABASE_URL', anonKey: "SUPABASE_ANON_KEY");
 
   runApp(
     MultiProvider(
