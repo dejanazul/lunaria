@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# Buat env.json dari Environment Variables Vercel
+cat > env.json << EOF
+{
+  "GEMINI_API_KEY": "$GEMINI_API_KEY",
+  "HF_INFERENCE_KEY": "$HF_INFERENCE_KEY",
+  "HF_INFERENCE_URL": "$HF_INFERENCE_URL",
+  "NEWS_API_KEY": "$NEWS_API_KEY",
+  "NEWS_BASE_URL": "$NEWS_BASE_URL",
+  "YOUTUBE_API_KEY": "$YOUTUBE_API_KEY",
+  "SUPABASE_ANON_KEY": "$SUPABASE_ANON_KEY",
+  "SUPABASE_URL": "$SUPABASE_URL",
+}
+EOF
