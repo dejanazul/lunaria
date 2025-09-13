@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lunaria/providers/user_provider.dart';
 import 'package:lunaria/routes/navigation_service.dart';
+import 'package:lunaria/services/auth_service.dart';
 import 'package:lunaria/widgets/bottom_nav.dart';
 import 'package:lunaria/widgets/profile/index.dart';
 import 'package:lunaria/helpers/responsive_helper.dart';
@@ -30,10 +31,50 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool trackCycle = false;
   final int _currentIndex = 4;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshUserData();
+  }
+
+  // Fungsi untuk memperbarui data user dari database
+  Future<void> _refreshUserData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final authService = AuthService();
+      if (userProvider.user != null) {
+        final updatedUser = await authService.getUserById(
+          userProvider.user!.userId,
+        );
+        if (updatedUser != null) {
+          userProvider.updateUserData(updatedUser);
+        }
+      }
+    } catch (e) {
+      print('Error refreshing user data: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[100],
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: Stack(
@@ -42,14 +83,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Header ungu sticky
               ProfileHeader(
-                name: userProvider.user!.name!,
-                email: userProvider.user!.email!,
-                username: userProvider.user!.username!,
+                name: userProvider.user?.name ?? 'User',
+                email: userProvider.user?.email ?? 'Email',
+                username: userProvider.user?.username ?? 'Username',
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const EditProfilePage()),
-                  );
+                  ).then((_) => _refreshUserData()); // Refresh after edit
                 },
               ),
 
@@ -96,31 +137,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ProfileListTile(
                               title: "Name",
                               page: const NamePage(),
-                              trailingText: userProvider.user!.name!,
+                              trailingText:
+                                  userProvider.user?.name ?? 'Not set',
                             ),
                             ProfileListTile(
                               title: "Date of Birth",
                               page: const BirthDatePage(),
                               trailingText:
-                                  userProvider.user!.birthDate!.toString(),
+                                  userProvider.user?.birthDate?.toString() ??
+                                  'Not set',
                             ),
                             ProfileListTile(
                               title: "Height",
                               page: const HeightPage(),
-                              trailingText: "${userProvider.user!.height} cm",
+                              trailingText:
+                                  userProvider.user?.height != null
+                                      ? "${userProvider.user!.height} cm"
+                                      : 'Not set',
                             ),
                             ProfileListTile(
                               title: "Weight",
                               page: const WeightPage(),
-                              trailingText: "${userProvider.user!.weight} kg",
+                              trailingText:
+                                  userProvider.user?.weight != null
+                                      ? "${userProvider.user!.weight} kg"
+                                      : 'Not set',
                             ),
                             ProfileListTile(
                               title: "Classes",
                               page: const ClassesPage(),
-                              trailingText: userProvider
-                                  .user!
-                                  .preferredActivities!
-                                  .join(", "),
+                              trailingText:
+                                  userProvider.user?.preferredActivities != null
+                                      ? userProvider.user!.preferredActivities!
+                                          .join(", ")
+                                      : 'Not set',
                             ),
                             ProfileListTile(
                               title: "Daily Step Goal",
@@ -177,11 +227,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ProfileCard(
                           children: [
                             LogoutButton(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Logout tapped"),
-                                  ),
+                              onTap: () async {
+                                await userProvider.signOut();
+                                if (!context.mounted) return;
+
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/login',
+                                  (route) => false,
                                 );
                               },
                             ),

@@ -61,7 +61,7 @@ class _TrainerScreenState extends State<TrainerScreen>
           color: Colors.grey[100],
           child: Column(
             children: [
-              SizedBox(height: 16),
+              SizedBox(height: 5),
               TabBar(
                 controller: _tabController,
                 labelColor: Colors.black,

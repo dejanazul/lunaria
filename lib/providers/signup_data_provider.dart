@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lunaria/models/menstrual_cycle_model.dart';
+import 'package:lunaria/models/user_model.dart';
 import 'package:lunaria/models/user_signup_model.dart';
 import 'package:lunaria/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,13 +29,13 @@ class SignupDataProvider extends ChangeNotifier {
   DateTime? startDate;
   int? periodLength;
 
-  UserSignupModel? _user;
+  UserModel? _user;
   MenstrualCycleModel? _cycle;
   AuthStatus _status = AuthStatus.initial;
   String? _errorMessage;
 
   // Getters
-  UserSignupModel? get user => _user;
+  UserModel? get user => _user;
   MenstrualCycleModel? get cycle => _cycle;
   AuthStatus get status => _status;
   String? get errorMessage => _errorMessage;

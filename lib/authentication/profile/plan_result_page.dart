@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lunaria/providers/cookie_provider.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
+import 'package:lunaria/providers/user_provider.dart';
 import 'package:lunaria/screens/home_pet/vp_home.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
@@ -204,6 +205,15 @@ class _PlanResultPageState extends State<PlanResultPage> {
           '✅ User account created successfully and all profile data saved to Supabase',
         );
 
+        // Update UserProvider with the newly created user data
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        if (signupData.user != null) {
+          userProvider.updateUserData(signupData.user!);
+          debugPrint(
+            'UserProvider updated with userId: ${signupData.user!.userId}',
+          );
+        }
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -241,6 +251,22 @@ class _PlanResultPageState extends State<PlanResultPage> {
       _claimed = true;
       _showReward = false;
     });
+
+    // Update cookie balance
+    final cookieProvider = Provider.of<CookieProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Add 50 cookies as reward
+    cookieProvider.addCookies(50);
+
+    // Debug log untuk memastikan userId tersedia
+    debugPrint('User ID in _onClaim: ${userProvider.user?.userId}');
+
+    // Navigate to HomeScreen after user claims the reward
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const VPHomeScreen()),
+      (route) => false, // Remove all previous routes
+    );
   }
 
   @override
@@ -396,6 +422,15 @@ class _RewardPopupState extends State<_RewardPopup>
   Widget build(BuildContext context) {
     final t = GoogleFonts.interTextTheme(Theme.of(context).textTheme);
     final cookieProvider = Provider.of<CookieProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Debug log untuk memastikan userId tersedia
+    if (userProvider.user != null) {
+      debugPrint('User ID in RewardPopup: ${userProvider.user!.userId}');
+    } else {
+      debugPrint('User is null in RewardPopup!');
+    }
+
     return ScaleTransition(
       scale: _scale,
       child: Container(

@@ -4,6 +4,7 @@ import 'package:lunaria/constants/colors.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
 import 'package:provider/provider.dart';
+import '../../helpers/responsive_helper.dart';
 
 import '../profile/my_profile_typical_day_page.dart';
 
@@ -69,15 +70,16 @@ class _MyProfileActivitiesPageState extends State<MyProfileActivitiesPage> {
         title: Text(
           'My Profile',
           style: GoogleFonts.poppins(
-            fontSize: 23,
+            fontSize: ResponsiveHelper.getHeadingFontSize(context),
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
+            size: ResponsiveHelper.getIconSize(context) * 0.8,
           ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -87,80 +89,156 @@ class _MyProfileActivitiesPageState extends State<MyProfileActivitiesPage> {
         ),
       ),
 
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                "Choose up to 3 activities\nyou’re interested in",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Header section dengan background solid
+          Container(
+            width: double.infinity,
+            color: const Color(0xFFF5F5F5),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal:
+                      ResponsiveHelper.getHorizontalPadding(
+                        context,
+                      ).horizontal /
+                      2,
+                  vertical: ResponsiveHelper.getMediumSpacing(context),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "Choose up to 3 activities\nyou're interested in",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: ResponsiveHelper.getTitleFontSize(context),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(
+                      height: ResponsiveHelper.getMediumSpacing(context),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+          ),
 
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                itemCount: activities.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, i) {
-                  final a = activities[i];
-                  final checked = _selected.contains(a.name);
-                  final reachLimit = _selected.length >= 10 && !checked;
+          // Activities list dengan proper z-index
+          Expanded(
+            child: Container(
+              color: const Color(0xFFF5F5F5),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+                  ),
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(
+                      horizontal:
+                          ResponsiveHelper.getHorizontalPadding(
+                            context,
+                          ).horizontal /
+                          2,
+                      vertical: ResponsiveHelper.getSmallSpacing(context),
+                    ),
+                    itemCount: activities.length,
+                    separatorBuilder:
+                        (_, __) => SizedBox(
+                          height: ResponsiveHelper.getSmallSpacing(context),
+                        ),
+                    itemBuilder: (context, i) {
+                      final a = activities[i];
+                      final checked = _selected.contains(a.name);
+                      final reachLimit = _selected.length >= 10 && !checked;
 
-                  return _ActivityTile(
-                    activity: a,
-                    checked: checked,
-                    disabled: reachLimit,
-                    onTap: () => _toggle(a.name),
-                  );
-                },
+                      return _ActivityTile(
+                        activity: a,
+                        checked: checked,
+                        disabled: reachLimit,
+                        onTap: () => _toggle(a.name),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
+          ),
 
-            SafeArea(
-              top: false,
-              minimum: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child:
-                  canNext
-                      ? GradientButton(
-                        text: 'Next',
-                        onTap: _saveActivities,
-
-                        // print(_selected.toList());
-                      )
-                      : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black.withOpacity(0.4),
-                          minimumSize: const Size.fromHeight(54),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 4,
-                          shadowColor: const Color(0x33000000),
-                        ),
-                        onPressed: null,
-                        child: Text(
-                          'Next',
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black.withOpacity(0.4),
-                          ),
-                        ),
-                      ),
+          // Bottom button dengan background solid dan shadow blocker
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x10000000),
+                  offset: Offset(0, -2),
+                  blurRadius: 8,
+                ),
+              ],
             ),
-          ],
-        ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal:
+                      ResponsiveHelper.getHorizontalPadding(
+                        context,
+                      ).horizontal /
+                      2,
+                  vertical: ResponsiveHelper.getMediumSpacing(context),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+                    ),
+                    child:
+                        canNext
+                            ? GradientButton(
+                              text: 'Next',
+                              onTap: _saveActivities,
+                            )
+                            : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black.withOpacity(0.4),
+                                minimumSize: Size.fromHeight(
+                                  ResponsiveHelper.getButtonHeight(context),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    ResponsiveHelper.getCardBorderRadius(
+                                          context,
+                                        ) *
+                                        0.7,
+                                  ),
+                                ),
+                                elevation: 4,
+                                shadowColor: const Color(0x33000000),
+                              ),
+                              onPressed: null,
+                              child: Text(
+                                'Next',
+                                style: GoogleFonts.poppins(
+                                  fontSize:
+                                      ResponsiveHelper.getSubheadingFontSize(
+                                        context,
+                                      ),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black.withOpacity(0.4),
+                                ),
+                              ),
+                            ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -181,48 +259,65 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: disabled ? null : onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-
-          border: Border.all(
-            color: checked ? AppColors.primary : const Color(0xFFE0E0E0),
-          ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: disabled ? null : onTap,
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getCardBorderRadius(context),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-
-                alignment: Alignment.center,
-                child: Image.asset(
-                  activity.iconPath,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.contain,
-                ),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getCardBorderRadius(context),
+            ),
+            border: Border.all(
+              color: checked ? AppColors.primary : const Color(0xFFE0E0E0),
+              width: checked ? 2 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0x08000000),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
               ),
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Text(
-                  activity.name,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: disabled ? const Color(0xFF9E9E9E) : Colors.black,
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveHelper.getMediumSpacing(context),
+              vertical: ResponsiveHelper.getSmallSpacing(context) * 1.5,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: ResponsiveHelper.getIconSize(context) * 1.5,
+                  height: ResponsiveHelper.getIconSize(context) * 1.5,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    activity.iconPath,
+                    width: ResponsiveHelper.getIconSize(context) * 1.5,
+                    height: ResponsiveHelper.getIconSize(context) * 1.5,
+                    fit: BoxFit.contain,
                   ),
                 ),
-              ),
+                SizedBox(width: ResponsiveHelper.getMediumSpacing(context)),
 
-              _CircleCheck(checked: checked, disabled: disabled),
-            ],
+                Expanded(
+                  child: Text(
+                    activity.name,
+                    style: GoogleFonts.poppins(
+                      fontSize: ResponsiveHelper.getBodyFontSize(context),
+                      fontWeight: FontWeight.w600,
+                      color: disabled ? const Color(0xFF9E9E9E) : Colors.black,
+                    ),
+                  ),
+                ),
+
+                _CircleCheck(checked: checked, disabled: disabled),
+              ],
+            ),
           ),
         ),
       ),
@@ -249,8 +344,8 @@ class _CircleCheck extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      width: 28,
-      height: 28,
+      width: ResponsiveHelper.getIconSize(context),
+      height: ResponsiveHelper.getIconSize(context),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: borderColor, width: 2),
@@ -258,7 +353,11 @@ class _CircleCheck extends StatelessWidget {
       ),
       child:
           checked
-              ? const Icon(Icons.check, size: 18, color: Colors.white)
+              ? Icon(
+                Icons.check,
+                size: ResponsiveHelper.getIconSize(context) * 0.6,
+                color: Colors.white,
+              )
               : null,
     );
   }

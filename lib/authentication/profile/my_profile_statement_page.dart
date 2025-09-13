@@ -4,6 +4,7 @@ import 'package:lunaria/constants/colors.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
 import 'package:provider/provider.dart';
+import '../../helpers/responsive_helper.dart';
 import '../profile/my_profile_height_page.dart';
 
 class MyProfileYesNoPage extends StatefulWidget {
@@ -45,15 +46,16 @@ class _MyProfileYesNoPageState extends State<MyProfileYesNoPage> {
         title: Text(
           'My Profile',
           style: GoogleFonts.poppins(
-            fontSize: 23,
+            fontSize: ResponsiveHelper.getHeadingFontSize(context),
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
+            size: ResponsiveHelper.getIconSize(context) * 0.8,
           ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -64,119 +66,184 @@ class _MyProfileYesNoPageState extends State<MyProfileYesNoPage> {
       ),
 
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                'Do you relate to the\nstatement below?',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 100),
-
-              // Quote card
-              Stack(
-                alignment: Alignment.topCenter,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+            ),
+            child: SingleChildScrollView(
+              padding: ResponsiveHelper.getHorizontalPadding(context),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 18),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 30,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xDDE3E7EE), // abu2 kebiruan lembut
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Menurutmu, apakah olahraga penting?',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
+                  SizedBox(height: ResponsiveHelper.getMediumSpacing(context)),
+
+                  // Title
+                  Text(
+                    'Do you relate to the\nstatement below?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: ResponsiveHelper.getTitleFontSize(context),
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
                     ),
                   ),
-                  // bubble quote
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFC9D0DB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.format_quote_rounded,
-                      color: Colors.white,
+
+                  SizedBox(
+                    height: ResponsiveHelper.getAdaptiveSpacing(
+                      context,
+                      smallMobile: 60,
+                      mobile: 100,
+                      tablet: 120,
                     ),
                   ),
-                ],
-              ),
 
-              const SizedBox(height: 230),
-
-              // Yes / No options
-              Row(
-                children: [
-                  Expanded(
-                    child: _SelectCard(
-                      label: 'Yes',
-                      icon: Icons.check_rounded,
-                      selected: _answer == 'yes',
-                      onTap: () => setState(() => _answer = 'yes'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _SelectCard(
-                      label: 'No',
-                      icon: Icons.close_rounded,
-                      selected: _answer == 'no',
-                      onTap: () => setState(() => _answer = 'no'),
-                    ),
-                  ),
-                ],
-              ),
-
-              const Spacer(),
-
-              // Next button
-              SafeArea(
-                top: false,
-                minimum: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                child:
-                    canNext
-                        ? GradientButton(text: 'Next', onTap: _saveYesNo)
-                        : ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black.withOpacity(0.4),
-                            minimumSize: const Size.fromHeight(54),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            elevation: 4,
-                            shadowColor: const Color(0x33000000),
+                  // Quote card with responsive design
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: ResponsiveHelper.getIconSize(context) * 0.75,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveHelper.getMediumSpacing(
+                            context,
                           ),
-                          onPressed: null,
-                          child: Text(
-                            'Next',
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black.withOpacity(0.4),
+                          vertical: ResponsiveHelper.getLargeSpacing(context),
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xDDE3E7EE),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getCardBorderRadius(context),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0x08000000),
+                              offset: const Offset(0, 4),
+                              blurRadius: 12,
                             ),
+                          ],
+                        ),
+                        child: Text(
+                          'Menurutmu, apakah olahraga penting?',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: ResponsiveHelper.getBodyFontSize(context),
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                            height: 1.4,
                           ),
                         ),
+                      ),
+                      // Quote bubble icon - responsive size
+                      Container(
+                        width: ResponsiveHelper.getIconSize(context) * 1.5,
+                        height: ResponsiveHelper.getIconSize(context) * 1.5,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFC9D0DB),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x15000000),
+                              offset: Offset(0, 2),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.format_quote_rounded,
+                          color: Colors.white,
+                          size: ResponsiveHelper.getIconSize(context) * 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: ResponsiveHelper.getAdaptiveSpacing(
+                      context,
+                      smallMobile: 100,
+                      mobile: 140,
+                      tablet: 180,
+                    ),
+                  ),
+
+                  // Yes / No options dengan responsive design
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SelectCard(
+                          label: 'Yes',
+                          icon: Icons.check_rounded,
+                          selected: _answer == 'yes',
+                          onTap: () => setState(() => _answer = 'yes'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: ResponsiveHelper.getMediumSpacing(context),
+                      ),
+                      Expanded(
+                        child: _SelectCard(
+                          label: 'No',
+                          icon: Icons.close_rounded,
+                          selected: _answer == 'no',
+                          onTap: () => setState(() => _answer = 'no'),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: ResponsiveHelper.getLargeSpacing(context),
+                  ),
+
+                  // Next button
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveHelper.getSmallSpacing(context),
+                    ),
+                    child:
+                        canNext
+                            ? GradientButton(text: 'Next', onTap: _saveYesNo)
+                            : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black.withOpacity(0.4),
+                                minimumSize: Size.fromHeight(
+                                  ResponsiveHelper.getButtonHeight(context),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    ResponsiveHelper.getCardBorderRadius(
+                                          context,
+                                        ) *
+                                        0.7,
+                                  ),
+                                ),
+                                elevation: 4,
+                                shadowColor: const Color(0x33000000),
+                              ),
+                              onPressed: null,
+                              child: Text(
+                                'Next',
+                                style: GoogleFonts.poppins(
+                                  fontSize:
+                                      ResponsiveHelper.getSubheadingFontSize(
+                                        context,
+                                      ),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black.withOpacity(0.4),
+                                ),
+                              ),
+                            ),
+                  ),
+
+                  // Extra padding for small screens
+                  SizedBox(height: ResponsiveHelper.getMediumSpacing(context)),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -207,35 +274,59 @@ class _SelectCard extends StatelessWidget {
     final dotIcon = selected ? AppColors.primary : const Color(0xFFBDBDBD);
     final textColor = Colors.black87;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Ink(
-        height: 140,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor, width: 1),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getCardBorderRadius(context),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(color: dotBg, shape: BoxShape.circle),
-              alignment: Alignment.center,
-              child: Icon(icon, size: 26, color: dotIcon),
+        child: Ink(
+          height: ResponsiveHelper.getAdaptiveSpacing(
+            context,
+            smallMobile: 120,
+            mobile: 140,
+            tablet: 160,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getCardBorderRadius(context),
             ),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+            border: Border.all(color: borderColor, width: selected ? 2 : 1),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0x08000000),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: ResponsiveHelper.getIconSize(context) * 1.4,
+                height: ResponsiveHelper.getIconSize(context) * 1.4,
+                decoration: BoxDecoration(color: dotBg, shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Icon(
+                  icon,
+                  size: ResponsiveHelper.getIconSize(context) * 0.8,
+                  color: dotIcon,
+                ),
+              ),
+              SizedBox(height: ResponsiveHelper.getSmallSpacing(context)),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: ResponsiveHelper.getCaptionFontSize(context),
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

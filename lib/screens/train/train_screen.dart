@@ -23,6 +23,16 @@ class TrainScreen extends StatefulWidget {
 
 class _TrainScreenState extends State<TrainScreen>
     with SingleTickerProviderStateMixin {
+  // Helper method untuk memformat tanggal
+  String _formatDate(String dateString) {
+    try {
+      final dateTime = DateTime.parse(dateString);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } catch (e) {
+      return '';
+    }
+  }
+
   Widget _movingTimeBarChart() {
     final List<Map<String, dynamic>> data = [
       {"day": "TUE", "percent": 0.7},
@@ -199,7 +209,14 @@ class _TrainScreenState extends State<TrainScreen>
       builder: (context, snapshot) {
         Widget content;
         if (snapshot.connectionState == ConnectionState.waiting) {
-          content = const Center(child: CircularProgressIndicator());
+          content = const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 30.0),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF913F9E)),
+              ),
+            ),
+          );
         } else if (snapshot.hasError) {
           content = Center(
             child: Padding(
@@ -245,10 +262,12 @@ class _TrainScreenState extends State<TrainScreen>
                           height: 60,
                           margin: const EdgeInsets.only(right: 12),
                           child:
-                              (article['image'] != null &&
-                                      article['image'].toString().isNotEmpty)
+                              (article['urlToImage'] != null &&
+                                      article['urlToImage']
+                                          .toString()
+                                          .isNotEmpty)
                                   ? Image.network(
-                                    article['image'],
+                                    article['urlToImage'],
                                     width: 60,
                                     height: 60,
                                     fit: BoxFit.cover,
@@ -285,11 +304,13 @@ class _TrainScreenState extends State<TrainScreen>
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 article['publishedAt'] != null
-                                    ? '${DateTime.tryParse(article['publishedAt'] ?? '')?.day ?? ''}/${DateTime.tryParse(article['publishedAt'] ?? '')?.month ?? ''}/${DateTime.tryParse(article['publishedAt'] ?? '')?.year ?? ''}'
+                                    ? _formatDate(article['publishedAt'] ?? '')
                                     : '',
                                 style: const TextStyle(
                                   color: Colors.grey,
@@ -328,12 +349,15 @@ class _TrainScreenState extends State<TrainScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Sport Articles',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                  Flexible(
+                    child: const Text(
+                      'Sport Articles',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   GestureDetector(
@@ -377,7 +401,7 @@ class _TrainScreenState extends State<TrainScreen>
               ),
               const SizedBox(height: 8),
               const Text(
-                'Stay informed with sport articles curated to match your interests. Each piece gives fresh insights, keeps you updated on the latest trends, and inspires you to embrace an active lifestyle at your own rhythm.',
+                'Stay informed with sport articles curated to match your interests. Each piece gives fresh insights and keeps you updated on the latest trends.',
                 style: TextStyle(
                   color: Colors.grey,
                   fontStyle: FontStyle.italic,
@@ -492,7 +516,7 @@ class _TrainScreenState extends State<TrainScreen>
           color: Colors.grey[100],
           child: Column(
             children: [
-              SizedBox(height: 16),
+              SizedBox(height: 5),
               TabBar(
                 controller: _tabController,
                 labelColor: Colors.black,
@@ -526,7 +550,10 @@ class _TrainScreenState extends State<TrainScreen>
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width < 360 ? 12.0 : 20.0,
+              vertical: 16.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -632,7 +659,7 @@ class _TrainScreenState extends State<TrainScreen>
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Start moving with guided workout videos designed for your needs. Each session helps ease discomfort, improve your health, and build lasting habits at your own pace.',
+                        'Start moving with guided workout videos designed for your needs. Each session helps improve your health.',
                         style: TextStyle(
                           color: Colors.grey,
                           fontStyle: FontStyle.italic,
@@ -655,51 +682,62 @@ class _TrainScreenState extends State<TrainScreen>
                       SizedBox(height: 8),
                       Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _SportIcon(
-                                label: 'Yoga',
-                                asset: 'assets/images/trainer_image_1.png',
-                                tag: 'Yoga',
-                              ),
-                              _SportIcon(
-                                label: 'Dance',
-                                asset: 'assets/images/trainer_image_2.png',
-                                tag: 'Dance',
-                              ),
-                              _SportIcon(
-                                label: 'Aerobik',
-                                asset: 'assets/images/trainer_image_3.png',
-                                tag: 'Aerobics',
-                              ),
-                              _SportIcon(
-                                label: 'Zumba',
-                                asset: 'assets/images/trainer_image_4.png',
-                                tag: 'Zumba',
-                              ),
-                            ],
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: [
+                                _SportIcon(
+                                  label: 'Yoga',
+                                  asset: 'assets/images/trainer_image_1.png',
+                                  tag: 'Yoga',
+                                ),
+                                SizedBox(width: 15),
+                                _SportIcon(
+                                  label: 'Dance',
+                                  asset: 'assets/images/trainer_image_2.png',
+                                  tag: 'Dance',
+                                ),
+                                SizedBox(width: 15),
+                                _SportIcon(
+                                  label: 'Aerobik',
+                                  asset: 'assets/images/trainer_image_3.png',
+                                  tag: 'Aerobics',
+                                ),
+                                SizedBox(width: 15),
+                                _SportIcon(
+                                  label: 'Zumba',
+                                  asset: 'assets/images/trainer_image_4.png',
+                                  tag: 'Zumba',
+                                ),
+                              ],
+                            ),
                           ),
                           SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _SportIcon(
-                                label: 'HIIT',
-                                asset: 'assets/images/trainer_image_5.png',
-                                tag: 'HIIT',
-                              ),
-                              _SportIcon(
-                                label: 'Pilates',
-                                asset: 'assets/images/trainer_image_6.png',
-                                tag: 'Pilates',
-                              ),
-                              _SportIcon(
-                                label: 'Workout',
-                                asset: 'assets/images/trainer_image_7.png',
-                                tag: 'Workout',
-                              ),
-                            ],
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: [
+                                _SportIcon(
+                                  label: 'HIIT',
+                                  asset: 'assets/images/trainer_image_5.png',
+                                  tag: 'HIIT',
+                                ),
+                                SizedBox(width: 15),
+                                _SportIcon(
+                                  label: 'Pilates',
+                                  asset: 'assets/images/trainer_image_6.png',
+                                  tag: 'Pilates',
+                                ),
+                                SizedBox(width: 15),
+                                _SportIcon(
+                                  label: 'Workout',
+                                  asset: 'assets/images/trainer_image_7.png',
+                                  tag: 'Workout',
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -736,6 +774,9 @@ class _SportIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 360;
+    final double iconSize = isSmallScreen ? 50 : 60;
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -746,8 +787,8 @@ class _SportIcon extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: iconSize,
+            height: iconSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -764,16 +805,16 @@ class _SportIcon extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(isSmallScreen ? 8.0 : 10.0),
               child: Image.asset(asset, fit: BoxFit.contain),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 12,
+              fontSize: isSmallScreen ? 10 : 12,
               fontWeight: FontWeight.w500,
             ),
           ),

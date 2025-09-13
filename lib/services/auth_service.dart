@@ -26,7 +26,7 @@ class AuthService {
     }
   }
 
-  Future<UserSignupModel?> addUserData({
+  Future<UserModel?> addUserData({
     required UserSignupModel userData,
     required startDate,
     required periodLength,
@@ -44,10 +44,17 @@ class AuthService {
         'start_date': startDate.toIso8601String(),
         'period_length': periodLength,
       });
-      return userData;
-    } on AuthException catch (e) {
-      debugPrint('Auth error: ${e.message}');
-      rethrow;
+
+      // Ambil data lengkap user setelah insert untuk memastikan semua data terisi
+      final fullUserData =
+          await _supabase
+              .from('users')
+              .select('*')
+              .eq('user_id', userId)
+              .single();
+
+      // Konversi ke UserModel dan return
+      return UserModel.fromJson(fullUserData);
     } catch (e) {
       debugPrint('Unexpected error during signup: $e');
       rethrow;
@@ -137,18 +144,29 @@ class AuthService {
       final User? user = _supabase.auth.currentUser;
 
       if (user != null) {
-        final userData =
-            await _supabase
-                .from('users')
-                .select("*")
-                .eq('user_id', user.id)
-                .single();
-
-        return UserModel.fromJson(userData);
+        // Tambahkan kode yang sudah ada di sini
+        return await getUserById(user.id);
       }
       return null;
     } catch (e) {
       debugPrint('Error getting current user: $e');
+      return null;
+    }
+  }
+
+  // Metode untuk mendapatkan data user berdasarkan userId
+  Future<UserModel?> getUserById(String userId) async {
+    try {
+      final userData =
+          await _supabase
+              .from('users')
+              .select('*')
+              .eq('user_id', userId)
+              .single();
+
+      return UserModel.fromJson(userData);
+    } catch (e) {
+      debugPrint('Error getting user by ID: $e');
       return null;
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
 import '../profile/my_profile_name_input_page.dart';
+import '../../helpers/responsive_helper.dart';
 
 class MyProfileNamePage extends StatelessWidget {
   const MyProfileNamePage({super.key});
@@ -14,9 +15,10 @@ class MyProfileNamePage extends StatelessWidget {
         elevation: 0,
         backgroundColor: const Color(0xFFF5F5F5),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
+            size: ResponsiveHelper.getIconSize(context) * 0.8,
           ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -25,38 +27,53 @@ class MyProfileNamePage extends StatelessWidget {
         top: false,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
+            constraints: BoxConstraints(
+              maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+            ),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: EdgeInsets.symmetric(
+                horizontal:
+                    ResponsiveHelper.getHorizontalPadding(context).horizontal /
+                    2,
+                vertical:
+                    ResponsiveHelper.getVerticalPadding(context).vertical / 2,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Title (dua baris, center)
                   Text(
-                    "Let’s personalize\nyour plan",
+                    "Let's personalize\nyour plan",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 28,
+                      fontSize: ResponsiveHelper.getTitleFontSize(context),
                       height: 1.15,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: ResponsiveHelper.getMediumSpacing(context)),
 
                   // Deskripsi
                   Text(
                     "To activate your Lunaria plan we require some of your health and other sensitive information (such as BMI, ethnicity). This is essentials to personalize your experience and cannot be exclude from our services. You may withdraw your consent in the profile.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 13,
+                      fontSize: ResponsiveHelper.getCaptionFontSize(context),
                       height: 1.6,
                       color: const Color(0xFF6B6B6B),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
 
-                  const SizedBox(height: 300),
+                  SizedBox(
+                    height: ResponsiveHelper.getAdaptiveSpacing(
+                      context,
+                      smallMobile: 120,
+                      mobile: 250,
+                      tablet: 300,
+                    ),
+                  ),
 
                   // Tombol 1: I AGREE (gradien)
                   GradientButton(
@@ -69,16 +86,20 @@ class MyProfileNamePage extends StatelessWidget {
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveHelper.getSmallSpacing(context)),
 
                   // Tombol 2: NOT RIGHT NOW (abu, bold)
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE6E6E6),
                       foregroundColor: Colors.black,
-                      minimumSize: const Size.fromHeight(54),
+                      minimumSize: Size.fromHeight(
+                        ResponsiveHelper.getButtonHeight(context),
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveHelper.getCardBorderRadius(context) * 0.7,
+                        ),
                       ),
                       elevation: 4,
                       shadowColor: const Color(0x33000000),
@@ -90,15 +111,15 @@ class MyProfileNamePage extends StatelessWidget {
                       'NOT RIGHT NOW',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontSize: ResponsiveHelper.getBodyFontSize(context),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  SizedBox(height: ResponsiveHelper.getLargeSpacing(context)),
 
                   // Link ke Login
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveHelper.getSmallSpacing(context)),
                 ],
               ),
             ),

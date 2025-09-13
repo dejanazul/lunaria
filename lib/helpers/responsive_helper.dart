@@ -3,10 +3,20 @@ import 'package:flutter/material.dart';
 class ResponsiveHelper {
   static const double _mobileMaxWidth = 480;
   static const double _tabletMaxWidth = 1024;
+  static const double _smallMobileMaxWidth = 360;
 
   // Screen size breakpoints
   static bool isMobile(BuildContext context) {
     return MediaQuery.of(context).size.width < _mobileMaxWidth;
+  }
+
+  static bool isSmallMobile(BuildContext context) {
+    return MediaQuery.of(context).size.width < _smallMobileMaxWidth;
+  }
+
+  static bool isLargeMobile(BuildContext context) {
+    return MediaQuery.of(context).size.width >= _smallMobileMaxWidth &&
+        MediaQuery.of(context).size.width < _mobileMaxWidth;
   }
 
   static bool isTablet(BuildContext context) {
@@ -188,12 +198,44 @@ class ResponsiveHelper {
 
   // Responsive container max width
   static double getMaxContentWidth(BuildContext context) {
-    if (isMobile(context)) {
-      return double.infinity;
+    if (isSmallMobile(context)) {
+      return MediaQuery.of(context).size.width * 0.9;
+    } else if (isMobile(context)) {
+      return 420;
     } else if (isTablet(context)) {
       return 600;
     } else {
       return 800;
+    }
+  }
+
+  // Responsive spacing based on screen height
+  static double getAdaptiveSpacing(BuildContext context, {
+    double smallMobile = 200,
+    double mobile = 280,
+    double tablet = 320,
+  }) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    if (isSmallMobile(context) || screenHeight < 700) {
+      return smallMobile;
+    } else if (isMobile(context)) {
+      return mobile;
+    } else {
+      return tablet;
+    }
+  }
+
+  // Get responsive title font size
+  static double getTitleFontSize(BuildContext context) {
+    if (isSmallMobile(context)) {
+      return 24;
+    } else if (isMobile(context)) {
+      return 28;
+    } else if (isTablet(context)) {
+      return 32;
+    } else {
+      return 36;
     }
   }
 

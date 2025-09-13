@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TextEmbedService {
-  static const String apiKey = 'HF_INFERENCE_KEY';
+  static const String apiKey = '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';
 
-  static const String apiUrl = "HF_INFERENCE_URL";
+  static const String apiUrl =
+      "https://router.huggingface.co/hf-inference/models/LazarusNLP/all-indo-e5-small-v4/pipeline/feature-extraction";
 
   Future<List<double>> getEmbedding(String input) async {
     debugPrint('============= DEBUG: TEXT EMBEDDING =============');

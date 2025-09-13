@@ -21,6 +21,12 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
   final TextEditingController _chatController = TextEditingController();
   final FocusNode _chatFocusNode = FocusNode();
 
+  // Helper method untuk mengecek apakah layar berukuran medium (375px)
+  bool isMediumPhone(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    return width > 360 && width <= 375;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +77,7 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                 children: [
                   // Background pet illustration
                   Positioned(
-                    top: -31,
+                    top: isMediumPhone(context) ? -25 : -31,
                     left: 0,
                     right: 0,
                     child: SizedBox(
@@ -86,11 +92,24 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
 
                   // Main pet character
                   Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.28,
-                    left: ResponsiveHelper.getScreenWidth(context) * 0.01,
+                    top:
+                        isMediumPhone(context)
+                            ? ResponsiveHelper.getScreenHeight(context) * 0.36
+                            : ResponsiveHelper.getScreenHeight(context) * 0.39,
+                    left:
+                        isMediumPhone(context)
+                            ? ResponsiveHelper.getScreenWidth(context) * 0.0
+                            : ResponsiveHelper.getScreenWidth(context) * 0.01,
                     child: SizedBox(
-                      height: ResponsiveHelper.getScreenHeight(context) * 0.43,
-                      width: ResponsiveHelper.getScreenWidth(context) * 0.98,
+                      height:
+                          isMediumPhone(context)
+                              ? ResponsiveHelper.getScreenHeight(context) * 0.42
+                              : ResponsiveHelper.getScreenHeight(context) *
+                                  0.43,
+                      width:
+                          isMediumPhone(context)
+                              ? ResponsiveHelper.getScreenWidth(context) * 1.0
+                              : ResponsiveHelper.getScreenWidth(context) * 0.98,
                       child: Image.asset(
                         'assets/images/pet_main_image.png',
                         fit: BoxFit.contain,
@@ -112,7 +131,10 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
                     top:
                         ResponsiveHelper.getSafeAreaTop(context) +
                         ResponsiveHelper.getMediumSpacing(context),
-                    left: ResponsiveHelper.getScreenWidth(context) * 0.39,
+                    left:
+                        isMediumPhone(context)
+                            ? ResponsiveHelper.getScreenWidth(context) * 0.40
+                            : ResponsiveHelper.getScreenWidth(context) * 0.42,
                     child: Row(
                       children: [
                         _buildCookieCounter(),
@@ -124,14 +146,20 @@ class _VPHomeScreenState extends State<VPHomeScreen> {
 
                   // Mood button
                   Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.73,
+                    top:
+                        isMediumPhone(context)
+                            ? ResponsiveHelper.getScreenHeight(context) * 0.68
+                            : ResponsiveHelper.getScreenHeight(context) * 0.70,
                     right: ResponsiveHelper.getMediumSpacing(context),
                     child: _buildMoodButton(),
                   ),
 
                   // Message bubble (tap to open card)
                   Positioned(
-                    top: ResponsiveHelper.getScreenHeight(context) * 0.23,
+                    top:
+                        isMediumPhone(context)
+                            ? ResponsiveHelper.getScreenHeight(context) * 0.22
+                            : ResponsiveHelper.getScreenHeight(context) * 0.23,
                     right: ResponsiveHelper.getMediumSpacing(context),
                     child: _buildMessageBubble(),
                   ),

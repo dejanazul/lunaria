@@ -4,6 +4,7 @@ import 'package:lunaria/constants/colors.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
 import 'package:provider/provider.dart';
+import '../../helpers/responsive_helper.dart';
 import '../profile/my_profile_statement_page.dart';
 
 class MyProfileTypicalDayPage extends StatefulWidget {
@@ -49,6 +50,7 @@ class _MyProfileTypicalDayPageState extends State<MyProfileTypicalDayPage> {
   @override
   Widget build(BuildContext context) {
     final canNext = _selected != null;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -59,15 +61,16 @@ class _MyProfileTypicalDayPageState extends State<MyProfileTypicalDayPage> {
         title: Text(
           'My Profile',
           style: GoogleFonts.poppins(
-            fontSize: 23,
+            fontSize: ResponsiveHelper.getHeadingFontSize(context),
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
+            size: ResponsiveHelper.getIconSize(context) * 0.8,
           ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -77,71 +80,172 @@ class _MyProfileTypicalDayPageState extends State<MyProfileTypicalDayPage> {
         ),
       ),
 
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                "What does your typical\nday look like?",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
+      body: Column(
+        children: [
+          // Header section dengan background solid
+          Container(
+            width: double.infinity,
+            color: const Color(0xFFF5F5F5),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal:
+                      ResponsiveHelper.getHorizontalPadding(
+                        context,
+                      ).horizontal /
+                      2,
+                  vertical: ResponsiveHelper.getMediumSpacing(context),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "What does your typical\nday look like?",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: ResponsiveHelper.getTitleFontSize(context),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                    // Adaptive spacing berdasarkan tinggi layar untuk mobile kecil
+                    SizedBox(
+                      height:
+                          ResponsiveHelper.isSmallMobile(context)
+                              ? (screenHeight < 700
+                                  ? 80
+                                  : 120) // Lebih kecil untuk layar pendek
+                              : ResponsiveHelper.getAdaptiveSpacing(
+                                context,
+                                smallMobile: 150,
+                                mobile: 220,
+                                tablet: 280,
+                              ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 250),
+          ),
 
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                itemCount: options.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, i) {
-                  final o = options[i];
-                  final checked = _selected == o.title;
-                  return _DayTile(
-                    option: o,
-                    checked: checked,
-                    onTap: () => setState(() => _selected = o.title),
-                  );
-                },
+          // Options list dengan ukuran scrollable yang disesuaikan
+          Expanded(
+            child: Container(
+              color: const Color(0xFFF5F5F5),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+                    // Tinggi minimum untuk scrollable area pada mobile kecil
+                    minHeight:
+                        ResponsiveHelper.isSmallMobile(context) ? 300 : 350,
+                  ),
+                  child: Container(
+                    // Memberi tinggi maksimal scrollable area
+                    height:
+                        ResponsiveHelper.isSmallMobile(context)
+                            ? (screenHeight < 700
+                                ? 280
+                                : 320) // Disesuaikan dengan layar pendek
+                            : null,
+                    child: ListView.separated(
+                      padding: EdgeInsets.symmetric(
+                        horizontal:
+                            ResponsiveHelper.getHorizontalPadding(
+                              context,
+                            ).horizontal /
+                            2,
+                        vertical: ResponsiveHelper.getSmallSpacing(context),
+                      ),
+                      itemCount: options.length,
+                      separatorBuilder:
+                          (_, __) => SizedBox(
+                            height: ResponsiveHelper.getSmallSpacing(context),
+                          ),
+                      itemBuilder: (context, i) {
+                        final o = options[i];
+                        final checked = _selected == o.title;
+                        return _DayTile(
+                          option: o,
+                          checked: checked,
+                          onTap: () => setState(() => _selected = o.title),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
+          ),
 
-            SafeArea(
-              top: false,
-              minimum: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child:
-                  canNext
-                      ? GradientButton(text: 'Next', onTap: _typicalDay)
-                      : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black.withOpacity(0.4),
-                          minimumSize: const Size.fromHeight(54),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 4,
-                          shadowColor: const Color(0x33000000),
-                        ),
-                        onPressed: null,
-                        child: Text(
-                          'Next',
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black.withOpacity(0.4),
-                          ),
-                        ),
-                      ),
+          // Bottom button dengan background solid dan shadow blocker
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x10000000),
+                  offset: Offset(0, -2),
+                  blurRadius: 8,
+                ),
+              ],
             ),
-          ],
-        ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal:
+                      ResponsiveHelper.getHorizontalPadding(
+                        context,
+                      ).horizontal /
+                      2,
+                  vertical: ResponsiveHelper.getMediumSpacing(context),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+                    ),
+                    child:
+                        canNext
+                            ? GradientButton(text: 'Next', onTap: _typicalDay)
+                            : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black.withOpacity(0.4),
+                                minimumSize: Size.fromHeight(
+                                  ResponsiveHelper.getButtonHeight(context),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    ResponsiveHelper.getCardBorderRadius(
+                                          context,
+                                        ) *
+                                        0.7,
+                                  ),
+                                ),
+                                elevation: 4,
+                                shadowColor: const Color(0x33000000),
+                              ),
+                              onPressed: null,
+                              child: Text(
+                                'Next',
+                                style: GoogleFonts.poppins(
+                                  fontSize:
+                                      ResponsiveHelper.getSubheadingFontSize(
+                                        context,
+                                      ),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black.withOpacity(0.4),
+                                ),
+                              ),
+                            ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -160,62 +264,88 @@ class _DayTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: checked ? AppColors.primary : const Color(0xFFE0E0E0),
-            width: 1,
-          ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getCardBorderRadius(context),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              // ICON bulat gradient + PNG
-              Container(
-                width: 48,
-                height: 48,
-
-                alignment: Alignment.center,
-                child: Image.asset(option.iconPath, width: 48, height: 48),
-              ),
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Text(
-                  option.title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-
-              // Check bulat kanan
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color:
-                        checked ? AppColors.primary : const Color(0xFFD9D9D9),
-                    width: 2,
-                  ),
-                  color: checked ? AppColors.primary : Colors.transparent,
-                ),
-                child:
-                    checked
-                        ? const Icon(Icons.check, size: 18, color: Colors.white)
-                        : null,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getCardBorderRadius(context),
+            ),
+            border: Border.all(
+              color: checked ? AppColors.primary : const Color(0xFFE0E0E0),
+              width: checked ? 2 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0x08000000),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
               ),
             ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveHelper.getMediumSpacing(context),
+              vertical: ResponsiveHelper.getSmallSpacing(context) * 1.5,
+            ),
+            child: Row(
+              children: [
+                // ICON bulat gradient + PNG
+                Container(
+                  width: ResponsiveHelper.getIconSize(context) * 1.5,
+                  height: ResponsiveHelper.getIconSize(context) * 1.5,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    option.iconPath,
+                    width: ResponsiveHelper.getIconSize(context) * 1.5,
+                    height: ResponsiveHelper.getIconSize(context) * 1.5,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                SizedBox(width: ResponsiveHelper.getMediumSpacing(context)),
+
+                Expanded(
+                  child: Text(
+                    option.title,
+                    style: GoogleFonts.poppins(
+                      fontSize: ResponsiveHelper.getBodyFontSize(context),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+
+                // Check bulat kanan
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: ResponsiveHelper.getIconSize(context),
+                  height: ResponsiveHelper.getIconSize(context),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color:
+                          checked ? AppColors.primary : const Color(0xFFD9D9D9),
+                      width: 2,
+                    ),
+                    color: checked ? AppColors.primary : Colors.transparent,
+                  ),
+                  child:
+                      checked
+                          ? Icon(
+                            Icons.check,
+                            size: ResponsiveHelper.getIconSize(context) * 0.6,
+                            color: Colors.white,
+                          )
+                          : null,
+                ),
+              ],
+            ),
           ),
         ),
       ),
