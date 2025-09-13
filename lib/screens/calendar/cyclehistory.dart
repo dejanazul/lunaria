@@ -163,7 +163,7 @@ class Cyclehistory extends StatelessWidget {
             },
             child: card,
           );
-        }).toList(),
+        }),
       ],
     );
   }

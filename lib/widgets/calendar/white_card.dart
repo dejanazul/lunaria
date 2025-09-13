@@ -4,7 +4,7 @@ import 'package:lunaria/helpers/responsive_helper.dart';
 class WhiteCard extends StatelessWidget {
   final Widget child;
 
-  const WhiteCard({Key? key, required this.child}) : super(key: key);
+  const WhiteCard({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

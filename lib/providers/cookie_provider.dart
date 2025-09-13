@@ -11,20 +11,20 @@ class CookieProvider extends ChangeNotifier {
     _userProvider = userProvider;
     // Load initial cookies from user data if available
     if (_userProvider?.user != null) {
-      _cookies = _userProvider!.user!.cookieBalance;
+      _cookies = _userProvider!.user!.cookieBalance!;
     }
     notifyListeners();
   }
 
   Future<void> syncFromDatabase() async {
-    if (_userProvider?.user?.id == null) return;
+    if (_userProvider?.user?.userId == null) return;
     try {
       final supabase = Supabase.instance.client;
       final response =
           await supabase
               .from('users')
               .select('cookie_balance')
-              .eq('user_id', _userProvider!.user!.id as Object)
+              .eq('user_id', _userProvider!.user!.userId as Object)
               .single();
       _cookies = response['cookie_balance'] ?? 0;
       notifyListeners();
@@ -35,13 +35,13 @@ class CookieProvider extends ChangeNotifier {
 
   Future<void> _saveToDatabase() async {
     try {
-      if (_userProvider?.user?.id == null) return;
+      if (_userProvider?.user?.userId == null) return;
 
       final supabase = Supabase.instance.client;
       await supabase
           .from('users')
           .update({'cookie_balance': _cookies})
-          .eq('user_id', _userProvider!.user!.id as Object);
+          .eq('user_id', _userProvider!.user!.userId as Object);
 
       // Update local user model
       if (_userProvider?.user != null) {

@@ -7,8 +7,7 @@ import 'package:lunaria/screens/calendar/cyclehistory.dart';
 class CycleHistoryCard extends StatelessWidget {
   final BuildContext parentContext;
 
-  const CycleHistoryCard({Key? key, required this.parentContext})
-    : super(key: key);
+  const CycleHistoryCard({super.key, required this.parentContext});
 
   @override
   Widget build(BuildContext context) {

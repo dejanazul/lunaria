@@ -28,8 +28,8 @@ class LevelProvider extends ChangeNotifier {
 
     // Load level and XP from user data if available
     if (_userProvider?.user != null) {
-      _level = _userProvider!.user!.level;
-      _currentXP = _userProvider!.user!.exp;
+      _level = _userProvider!.user!.level!;
+      _currentXP = _userProvider!.user!.exp!;
     }
 
     notifyListeners();
@@ -56,13 +56,13 @@ class LevelProvider extends ChangeNotifier {
   // Save level data to database
   Future<void> _saveToDatabase() async {
     try {
-      if (_userProvider?.user?.id == null) return;
+      if (_userProvider?.user?.userId == null) return;
 
       final supabase = Supabase.instance.client;
       await supabase
           .from('users')
           .update({'level': _level, 'exp': _currentXP})
-          .eq('user_id', _userProvider!.user!.id as Object);
+          .eq('user_id', _userProvider!.user!.userId as Object);
 
       // Update local user model
       if (_userProvider?.user != null) {
@@ -83,7 +83,7 @@ class LevelProvider extends ChangeNotifier {
 
   // Method to sync level from database
   Future<void> syncFromDatabase() async {
-    if (_userProvider?.user?.id == null) return;
+    if (_userProvider?.user?.userId == null) return;
 
     try {
       final supabase = Supabase.instance.client;
@@ -91,13 +91,13 @@ class LevelProvider extends ChangeNotifier {
           await supabase
               .from('users')
               .select('level, exp')
-              .eq('user_id', _userProvider!.user!.id as Object)
+              .eq('user_id', _userProvider!.user!.userId as Object)
               .single();
 
       _level = response['level'] ?? 1;
       _currentXP = response['exp'] ?? 0;
       notifyListeners();
-        } catch (e) {
+    } catch (e) {
       debugPrint('Error syncing level data: $e');
     }
   }

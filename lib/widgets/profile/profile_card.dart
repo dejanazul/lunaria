@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ProfileCard extends StatelessWidget {
   final List<Widget> children;
 
-  const ProfileCard({Key? key, required this.children}) : super(key: key);
+  const ProfileCard({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {

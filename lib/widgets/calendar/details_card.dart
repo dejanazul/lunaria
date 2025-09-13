@@ -4,7 +4,7 @@ import 'package:lunaria/widgets/calendar/white_card.dart';
 import 'package:lunaria/widgets/calendar/detail_row.dart';
 
 class DetailsCard extends StatelessWidget {
-  const DetailsCard({Key? key}) : super(key: key);
+  const DetailsCard({super.key});
 
   @override
   Widget build(BuildContext context) {

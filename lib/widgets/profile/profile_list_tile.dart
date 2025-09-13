@@ -8,12 +8,12 @@ class ProfileListTile extends StatelessWidget {
   final VoidCallback? onTap;
   
   const ProfileListTile({
-    Key? key, 
+    super.key, 
     required this.title, 
     required this.page,
     this.trailingText,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

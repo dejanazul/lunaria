@@ -4,7 +4,7 @@ import 'package:lunaria/helpers/responsive_helper.dart';
 class LogoutButton extends StatelessWidget {
   final VoidCallback onTap;
 
-  const LogoutButton({Key? key, required this.onTap}) : super(key: key);
+  const LogoutButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

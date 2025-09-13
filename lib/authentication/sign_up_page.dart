@@ -70,20 +70,94 @@ class _SignUpPageState extends State<SignUpPage> {
         listen: false,
       );
 
-      // Update the signup info in the provider
-      signupProvider.updateSignupInfo(
+      // Periksa ketersediaan username dan email
+      final checkResult = await signupProvider.checkUsernameEmailAvailability(
         username: userC.text.trim(),
         email: emailC.text.trim(),
-        password: passC.text,
       );
 
-      // Navigate to next screen in the signup flow
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MyProfileNamePage()),
-        );
+      // Jika username sudah digunakan
+      if (checkResult['usernameExists'] == true) {
+        // Tampilkan SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Username sudah digunakan. Silakan pilih username lain.',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        setState(() {
+          errorMessage =
+              'Username sudah digunakan. Silakan pilih username lain.';
+        });
+        return; // Jangan lanjutkan ke layar berikutnya
+      }
+
+      // Jika email sudah terdaftar
+      if (checkResult['emailExists'] == true) {
+        // Tampilkan SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Email sudah terdaftar. Silakan gunakan email lain atau login.',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        setState(() {
+          errorMessage =
+              'Email sudah terdaftar. Silakan gunakan email lain atau login.';
+        });
+        return; // Jangan lanjutkan ke layar berikutnya
+      }
+
+      // Jika username dan email tersedia, simpan data
+      final success = await signupProvider.updateSignupInfo(
+        username: userC.text.trim(),
+        email: emailC.text.trim(),
+        passwordHash: passC.text,
+      );
+
+      // Hanya navigasi jika update berhasil
+      if (success) {
+        // Navigate to next screen in the signup flow
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MyProfileNamePage()),
+          );
+        }
+      } else {
+        // Jika gagal update tapi bukan karena username/email sudah ada
+        if (mounted && signupProvider.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(signupProvider.errorMessage!),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        setState(() {
+          errorMessage = signupProvider.errorMessage;
+        });
       }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
       setState(() {
         errorMessage = e.toString();
       });

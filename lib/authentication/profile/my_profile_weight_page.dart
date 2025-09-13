@@ -477,6 +477,7 @@ class _MyProfileWeightPageState extends State<MyProfileWeightPage> {
       context,
       listen: false,
     );
+    signupProvider.updateWeight(_weightKg!);
     signupProvider.updateBmi(bmi);
 
     // Debug print the data

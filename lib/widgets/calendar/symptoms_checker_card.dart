@@ -7,8 +7,7 @@ import 'package:lunaria/widgets/calendar/header_with_button.dart';
 class SymptomsCheckerCard extends StatelessWidget {
   final BuildContext parentContext;
 
-  const SymptomsCheckerCard({Key? key, required this.parentContext})
-    : super(key: key);
+  const SymptomsCheckerCard({super.key, required this.parentContext});
 
   @override
   Widget build(BuildContext context) {

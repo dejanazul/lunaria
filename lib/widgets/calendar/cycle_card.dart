@@ -7,11 +7,11 @@ class CycleCard extends StatelessWidget {
   final List<Color> days;
 
   const CycleCard({
-    Key? key,
+    super.key,
     required this.duration,
     required this.dateRange,
     required this.days,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

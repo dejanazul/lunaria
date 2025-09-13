@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lunaria/models/user_model.dart';
+import 'package:lunaria/models/menstrual_cycle_model.dart';
+import 'package:lunaria/models/user_signup_model.dart';
 import 'package:lunaria/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,28 +17,28 @@ class SignupDataProvider extends ChangeNotifier {
 
   String? username;
   String? email;
-  String? password;
+  String? passwordHash;
   String? name;
   DateTime? birthDate;
+  List<String>? preferredActivities;
+  String? lifestyle;
+  double? bmi;
   double? height;
   double? weight;
   DateTime? startDate;
   int? periodLength;
-  String? fitnessLevel;
-  List<String>? preferredActivities;
-  String? lifestyle;
-  double? bmi;
 
-  UserModel? _user;
+  UserSignupModel? _user;
+  MenstrualCycleModel? _cycle;
   AuthStatus _status = AuthStatus.initial;
   String? _errorMessage;
 
   // Getters
-  UserModel? get user => _user;
+  UserSignupModel? get user => _user;
+  MenstrualCycleModel? get cycle => _cycle;
   AuthStatus get status => _status;
   String? get errorMessage => _errorMessage;
 
-  // Helper method to log data after updates
   void _logDebugData(String updatedField, dynamic value) {
     debugPrint('=== SIGNUP DATA UPDATE ===');
     debugPrint('Updated field: $updatedField');
@@ -45,31 +46,82 @@ class SignupDataProvider extends ChangeNotifier {
     debugPrint('--- Current Data ---');
     debugPrint('username: $username');
     debugPrint('email: $email');
-    debugPrint('password: ${password != null ? '****' : 'null'}');
+    debugPrint('password: ${passwordHash != null ? '****' : 'null'}');
     debugPrint('name: $name');
     debugPrint('birthDate: ${birthDate?.toString() ?? 'null'}');
     debugPrint('height: $height');
     debugPrint('weight: $weight');
     debugPrint('lastCycle: ${startDate?.toString() ?? 'null'}');
     debugPrint('cycleDuration: $periodLength');
-    debugPrint('fitnessLevel: $fitnessLevel');
     debugPrint('preferredActivities: $preferredActivities');
     debugPrint('lifestyle: $lifestyle');
     debugPrint('bmi: $bmi');
     debugPrint('========================');
   }
 
-  // Method to update basic signup info (from signup page)
-  void updateSignupInfo({
+  Future<Map<String, bool>> checkUsernameEmailAvailability({
     required String username,
     required String email,
-    required String password,
-  }) {
+  }) async {
+    try {
+      final result = await _authService.checkUsernameAndEmail(
+        username: username,
+        email: email,
+      );
+
+      // Simpan pesan error jika ada
+      if (result['usernameExists'] == true) {
+        _errorMessage =
+            'Username sudah digunakan. Silakan pilih username lain.';
+      } else if (result['emailExists'] == true) {
+        _errorMessage =
+            'Email sudah terdaftar. Silakan gunakan email lain atau login.';
+      } else {
+        _errorMessage = null;
+      }
+
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _errorMessage =
+          'Gagal memeriksa ketersediaan username dan email: ${e.toString()}';
+      notifyListeners();
+      return {'usernameExists': false, 'emailExists': false, 'error': true};
+    }
+  }
+
+  // Method to update basic signup info (from signup page)
+  Future<bool> updateSignupInfo({
+    required String username,
+    required String email,
+    required String passwordHash,
+  }) async {
+    // Periksa ketersediaan username dan email terlebih dahulu
+    final availabilityCheck = await checkUsernameEmailAvailability(
+      username: username,
+      email: email,
+    );
+
+    // Jika username atau email sudah digunakan, return false
+    if (availabilityCheck['usernameExists'] == true ||
+        availabilityCheck['emailExists'] == true ||
+        availabilityCheck['error'] == true) {
+      return false;
+    }
+
+    // Jika username dan email tersedia, simpan data
     this.username = username;
     this.email = email;
-    this.password = password;
+    this.passwordHash = passwordHash;
     notifyListeners();
-    _logDebugData('signup info', {'username': username, 'email': email});
+
+    _logDebugData('signup info', {
+      'username': username,
+      'email': email,
+      'passwordHash': '****',
+    });
+
+    return true;
   }
 
   // Method to update name
@@ -114,13 +166,6 @@ class SignupDataProvider extends ChangeNotifier {
     _logDebugData('cycleDuration', periodLength);
   }
 
-  // Method to update fitness level
-  void updateFitnessLevel(String fitnessLevel) {
-    this.fitnessLevel = fitnessLevel;
-    notifyListeners();
-    _logDebugData('fitnessLevel', fitnessLevel);
-  }
-
   // Method to update preferred activities
   void updatePreferredActivities(List<String> activities) {
     preferredActivities = activities;
@@ -141,62 +186,40 @@ class SignupDataProvider extends ChangeNotifier {
     _logDebugData('bmi', bmi);
   }
 
-  // Check if we have collected the minimum required information
-  bool get hasRequiredInfo {
-    return username != null &&
-        email != null &&
-        password != null &&
-        name != null;
-  }
-
-  // Reset all data
-  void reset() {
-    username = null;
-    email = null;
-    password = null;
-    name = null;
-    birthDate = null;
-    height = null;
-    weight = null;
-    startDate = null;
-    periodLength = null;
-    fitnessLevel = null;
-    preferredActivities = null;
-    lifestyle = null;
-    bmi = null;
-    notifyListeners();
-    debugPrint('=== SIGNUP DATA RESET ===');
-  }
-
   Future<bool> completeSignUp({
     required String username,
     required String email,
-    required String password,
+    required String passwordHash,
     String? name,
     DateTime? birthDate,
+    List<String>? preferredActivities,
+    String? lifestyle,
+    double? bmi,
+    double? height,
+    double? weight,
     DateTime? lastCycle,
     int? cycleDuration,
-    String? fitnessLevel,
-    String? lifestyle,
-    List<String>? preferredActivities,
-    double? bmi,
   }) async {
     _status = AuthStatus.authenticating;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final user = await _authService.completeSignUp(
-        username: username,
-        email: email,
-        password: password,
-        name: name,
-        birthDate: birthDate,
-        startDate: lastCycle,
+      final user = await _authService.addUserData(
+        userData: UserSignupModel(
+          username: username,
+          email: email,
+          passwordHash: passwordHash,
+          name: name,
+          birthDate: birthDate,
+          lifestyle: lifestyle,
+          preferredActivities: preferredActivities,
+          bmi: bmi,
+          height: height,
+          weight: weight,
+        ),
+        startDate: lastCycle ?? DateTime.now(),
         periodLength: cycleDuration,
-        lifestyle: lifestyle,
-        preferredActivities: preferredActivities,
-        bmi: bmi,
       );
 
       if (user != null) {

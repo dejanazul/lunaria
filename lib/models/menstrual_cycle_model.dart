@@ -1,8 +1,8 @@
 class MenstrualCycleModel {
-  final String userId; // foreign key to users table
-  final DateTime startDate; // start_date (date)
-  final DateTime? endDate; // end_date (date), can be null
-  final int? periodLength; // period_length (integer), can be null
+  final String userId;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final int? periodLength;
 
   const MenstrualCycleModel({
     required this.userId,

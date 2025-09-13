@@ -1,6 +1,7 @@
 // lib/features/plan/plan_result_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lunaria/providers/cookie_provider.dart';
 import 'package:lunaria/providers/signup_data_provider.dart';
 import 'package:lunaria/screens/home_pet/vp_home.dart';
 import 'package:provider/provider.dart';
@@ -172,7 +173,7 @@ class _PlanResultPageState extends State<PlanResultPage> {
       // Make sure we have the required fields for signup
       if (signupData.username == null ||
           signupData.email == null ||
-          signupData.password == null) {
+          signupData.passwordHash == null) {
         debugPrint('❌ Missing required fields for signup');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -183,18 +184,19 @@ class _PlanResultPageState extends State<PlanResultPage> {
         return;
       }
 
-      // Complete the signup process with all collected user data
       final success = await signupData.completeSignUp(
         username: signupData.username!,
         email: signupData.email!,
-        password: signupData.password!,
+        passwordHash: signupData.passwordHash!,
         name: signupData.name,
         birthDate: signupData.birthDate,
+        preferredActivities: signupData.preferredActivities,
+        lifestyle: signupData.lifestyle,
+        bmi: signupData.bmi,
+        height: signupData.height,
+        weight: signupData.weight,
         lastCycle: signupData.startDate,
         cycleDuration: signupData.periodLength,
-        lifestyle: signupData.lifestyle, // Use lifestyle information
-        preferredActivities: signupData.preferredActivities,
-        bmi: calculatedBmi,
       );
 
       if (success) {
@@ -393,6 +395,7 @@ class _RewardPopupState extends State<_RewardPopup>
   @override
   Widget build(BuildContext context) {
     final t = GoogleFonts.interTextTheme(Theme.of(context).textTheme);
+    final cookieProvider = Provider.of<CookieProvider>(context, listen: false);
     return ScaleTransition(
       scale: _scale,
       child: Container(
@@ -447,9 +450,11 @@ class _RewardPopupState extends State<_RewardPopup>
                   elevation: 3,
                 ),
                 onPressed: () {
-                  widget.onClaim;
+                  widget.onClaim();
                   if (mounted) {
                     widget.onClaim();
+                    cookieProvider.addCookies(10);
+
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => const VPHomeScreen()),

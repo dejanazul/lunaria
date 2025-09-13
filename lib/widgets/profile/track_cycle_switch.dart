@@ -6,10 +6,10 @@ class TrackCycleSwitch extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const TrackCycleSwitch({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -7,11 +7,11 @@ class DetailRow extends StatelessWidget {
   final bool isNormal;
 
   const DetailRow({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     this.isNormal = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

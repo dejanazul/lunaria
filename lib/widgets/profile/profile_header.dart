@@ -8,12 +8,12 @@ class ProfileHeader extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProfileHeader({
-    Key? key,
+    super.key,
     required this.name,
     required this.email,
     required this.username,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

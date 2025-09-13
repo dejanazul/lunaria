@@ -120,11 +120,6 @@ class AppTheme {
         fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.all(20),
       ),
-      cardTheme: CardTheme(
-        elevation: 4,
-        shadowColor: AppColors.shadow,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      ),
     );
   }
 }

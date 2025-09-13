@@ -11,7 +11,7 @@ class DetailCalendar extends StatefulWidget {
 class _DetailCalendarState extends State<DetailCalendar> {
   bool _isEditing = false;
 
-  Set<DateTime> _periodDays = {
+  final Set<DateTime> _periodDays = {
     DateTime.utc(2025, 9, 2),
     DateTime.utc(2025, 9, 3),
     DateTime.utc(2025, 9, 4),

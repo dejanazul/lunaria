@@ -11,7 +11,6 @@ import 'name.dart';
 import 'birth.dart';
 import 'height.dart';
 import 'weight.dart';
-import 'fitnesslvl.dart';
 import 'classes.dart';
 import 'dailystep.dart';
 import 'termofuse.dart';
@@ -44,8 +43,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Header ungu sticky
               ProfileHeader(
                 name: userProvider.user!.name!,
-                email: userProvider.user!.email,
-                username: userProvider.user!.username,
+                email: userProvider.user!.email!,
+                username: userProvider.user!.username!,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -108,17 +107,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ProfileListTile(
                               title: "Height",
                               page: const HeightPage(),
-                              trailingText: "165 cm",
+                              trailingText: "${userProvider.user!.height} cm",
                             ),
                             ProfileListTile(
                               title: "Weight",
                               page: const WeightPage(),
-                              trailingText: "57 kg",
-                            ),
-                            ProfileListTile(
-                              title: "Fitness Level",
-                              page: const FitnessLevelPage(),
-                              trailingText: "Newbie",
+                              trailingText: "${userProvider.user!.weight} kg",
                             ),
                             ProfileListTile(
                               title: "Classes",

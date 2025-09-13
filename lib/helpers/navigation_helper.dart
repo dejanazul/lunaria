@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/calendar/calendar_screen.dart';
+import 'package:lunaria/screens/calendar/calendar_page.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/home_pet/vp_home.dart';
 import '../screens/community/community_screen.dart';
@@ -16,7 +16,7 @@ class NavigationHelper {
     Widget screen;
     switch (index) {
       case 0:
-        screen = const CalendarScreen();
+        screen = const CalendarPage();
         break;
       case 1:
         screen = const TrainScreen();

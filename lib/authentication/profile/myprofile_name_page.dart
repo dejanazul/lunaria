@@ -1,7 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lunaria/authentication/login_page.dart';
 import 'package:lunaria/widgets/auth/auth_components.dart';
 import '../profile/my_profile_name_input_page.dart';
 
@@ -100,37 +98,6 @@ class MyProfileNamePage extends StatelessWidget {
                   const SizedBox(height: 28),
 
                   // Link ke Login
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        children: [
-                          const TextSpan(text: "Already Have an Account? "),
-                          TextSpan(
-                            text: "LOGIN HERE",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: const Color(0xFF004577),
-                              decoration: TextDecoration.underline,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (_) => const LoginPage(),
-                                  ),
-                                  (route) => false,
-                                );
-                              },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 12),
                 ],
               ),

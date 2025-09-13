@@ -7,7 +7,7 @@ import 'CreatingPlanPage.dart';
 import 'plan_result_page.dart';
 
 class MyProfileSummaryPage extends StatelessWidget {
-  MyProfileSummaryPage({
+  const MyProfileSummaryPage({
     super.key,
     required this.heightCm,
     required this.weightKg,

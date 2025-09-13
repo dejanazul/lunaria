@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user_model.dart';
 import '../services/auth_service.dart';
 
 enum AuthStatus {
@@ -61,7 +61,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final user = await _authService.signIn(email: email, password: password);
+      final user = await _authService.logIn(email: email, password: password);
 
       if (user != null) {
         debugPrint('Sign in successful for: ${user.email}');

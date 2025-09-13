@@ -1,86 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:lunaria/models/menstrual_cycle_model.dart';
+import 'package:lunaria/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user_model.dart';
+import '../models/user_signup_model.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Complete signup with all user data
-  Future<UserModel?> completeSignUp({
-    required String username,
-    required String email,
-    required String password,
-    String? name,
-    DateTime? birthDate,
-    double? height,
-    double? weight,
-    DateTime? startDate,
-    int? periodLength,
-    String? lifestyle,
-    List<String>? preferredActivities,
-    double? bmi,
+  Future<UserSignupModel?> addUserData({
+    required UserSignupModel userData,
+    required startDate,
+    required periodLength,
   }) async {
     try {
-      // 1. Create auth user
-      final AuthResponse response = await _supabase.auth.signUp(
-        email: email,
-        password: password,
-      );
+      final response = await _supabase
+          .from('users')
+          .insert(userData.toJson())
+          .select('user_id');
 
-      if (response.user == null) {
-        throw Exception('Failed to create user');
-      }
+      final userId = response[0]['user_id'] as String;
 
-      final userId = response.user!.id;
-
-      // Calculate BMI if height and weight are available
-      double? calculatedBmi;
-      if (height != null && weight != null) {
-        final heightInMeters = height / 100; // Convert cm to m
-        calculatedBmi = weight / (heightInMeters * heightInMeters);
-        calculatedBmi = double.parse(
-          calculatedBmi.toStringAsFixed(2),
-        ); // Round to 2 decimal places
-      }
-
-      // 2. Create full user model with all profile data
-      final userModel = UserModel(
-        id: userId,
-        username: username,
-        email: email,
-        passwordHash:
-            password, // Use actual password - real hashing is handled by Supabase Auth
-        name: name,
-        birthDate: birthDate,
-        preferredActivities: preferredActivities,
-        lifestyle: lifestyle,
-        bmi: calculatedBmi,
-      );
-
-      // 3. Insert complete user data to the 'users' table
-      await _supabase.from('users').insert(userModel.toJson());
-
-      // 4. If menstrual cycle data is provided, save it to the menstrual_cycles table
-      if (startDate != null) {
-        // Create a new menstrual cycle entry
-        // final menstrualCycleData = {
-        //   'user_id': userId,
-        //   'start_date': startDate.toIso8601String(),
-        //   'period_length': periodLength,
-        // };
-        final menstrualCycleModel = MenstrualCycleModel(
-          userId: userId,
-          startDate: startDate,
-          periodLength: periodLength,
-        );
-
-        await _supabase
-            .from('menstrual_cycles')
-            .insert(menstrualCycleModel.toJson());
-      }
-
-      return userModel;
+      await _supabase.from("menstrual_cycles").insert({
+        'user_id': userId,
+        'start_date': startDate.toIso8601String(),
+        'period_length': periodLength,
+      });
+      return userData;
     } on AuthException catch (e) {
       debugPrint('Auth error: ${e.message}');
       rethrow;
@@ -90,8 +34,38 @@ class AuthService {
     }
   }
 
-  // Sign in user dengan email dan password
-  Future<UserModel?> signIn({
+  Future<Map<String, bool>> checkUsernameAndEmail({
+    required String username,
+    required String email,
+  }) async {
+    try {
+      final usernameExists =
+          await _supabase
+              .from('users')
+              .select('username')
+              .eq('username', username)
+              .maybeSingle();
+
+      // Cek apakah email sudah ada
+      final emailExists =
+          await _supabase
+              .from('users')
+              .select('email')
+              .eq('email', email)
+              .maybeSingle();
+
+      return {
+        'usernameExists': usernameExists != null,
+        'emailExists': emailExists != null,
+      };
+    } catch (e) {
+      debugPrint('Error checking username and email: $e');
+      // Jika terjadi error, kembalikan false untuk keduanya agar pengguna bisa mencoba lagi
+      return {'usernameExists': false, 'emailExists': false};
+    }
+  }
+
+  Future<UserModel?> logIn({
     required String email,
     required String password,
   }) async {
