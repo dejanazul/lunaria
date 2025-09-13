@@ -2,12 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class NewsApiService {
-  static const String _apiKey = 'e5b4a531188b43cba462643a9664e050';
-  static const String _baseUrl = 'https://newsapi.org/v2/everything';
+  static const String _apiKey = 'NEWS_API_KEY';
+  static const String _baseUrl = 'NEWS_BASE_URL';
 
-  /// Fetches English sport/health/women news with broader, more relevant results.
-  /// [keywords] is a list of search terms, e.g. ['sport', 'health', 'women']
-  /// Returns a list of articles (Map) or throws an error.
   static Future<List<Map<String, dynamic>>> fetchArticles({
     List<String>? keywords,
     int pageSize = 20,
