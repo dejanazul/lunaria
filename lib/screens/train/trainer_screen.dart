@@ -57,32 +57,35 @@ class _TrainerScreenState extends State<TrainerScreen>
       backgroundColor: Colors.grey[100],
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
-        child: Container(
-          color: Colors.grey[100],
-          child: Column(
-            children: [
-              SizedBox(height: 5),
-              TabBar(
-                controller: _tabController,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF913F9E),
-                indicatorWeight: 5,
-                labelStyle: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w500,
-                  fontSize: ResponsiveHelper.getSubheadingFontSize(context),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+          child: Container(
+            color: Colors.grey[100],
+            child: Column(
+              children: [
+                SizedBox(height: 5),
+                TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Color(0xFF913F9E),
+                  indicatorWeight: 5,
+                  labelStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                    fontSize: ResponsiveHelper.getSubheadingFontSize(context),
+                  ),
+                  tabs: const [Tab(text: 'Exercise'), Tab(text: 'Trainer')],
+                  onTap: (index) {
+                    if (index == 0) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => TrainScreen()),
+                      );
+                    }
+                  },
                 ),
-                tabs: const [Tab(text: 'Exercise'), Tab(text: 'Trainer')],
-                onTap: (index) {
-                  if (index == 0) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => TrainScreen()),
-                    );
-                  }
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

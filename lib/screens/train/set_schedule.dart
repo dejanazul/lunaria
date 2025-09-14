@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lunaria/screens/home_pet/vp_home.dart';
 import '../../constants/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -91,16 +92,16 @@ class _SetScheduleScreenState extends State<SetScheduleScreen> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
                       final cookieProvider = Provider.of<CookieProvider>(
                         context,
                         listen: false,
                       );
-                      // if (cookieProvider.spendCookies(bookingCost)) {
-                      //   _showSuccessDialog(slotIdx);
-                      // } else {
-                      //   _showErrorDialog();
-                      // }
+                      if (cookieProvider.cookies >= bookingCost) {
+                        cookieProvider.spendCookies(bookingCost);
+                        _showSuccessDialog(slotIdx);
+                      } else {
+                        _showErrorDialog();
+                      }
                     },
                   ),
                 ),
@@ -167,8 +168,11 @@ class _SetScheduleScreenState extends State<SetScheduleScreen> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop(); // close dialog
-                      Navigator.of(context).pop(); // close set_schedule.dart
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const VPHomeScreen(),
+                        ),
+                      );
                     },
                   ),
                 ),
