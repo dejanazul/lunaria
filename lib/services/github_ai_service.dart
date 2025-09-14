@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GitHubAIService {
-  final String _baseUrl = 'https://models.github.ai/inference/chat/completions';
+  final String _baseUrl = String.fromEnvironment('GITHUB_API_KEY_BASE_URL');
   final String _token = const String.fromEnvironment('GITHUB_API_KEY');
 
   Future<Map<String, dynamic>> chatCompletion({
