@@ -77,7 +77,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Cookie tidak cukup! Kamu perlu ${unlockCost} cookies untuk membuka video ini.',
+            'Cookie tidak cukup! Kamu perlu $unlockCost cookies untuk membuka video ini.',
           ),
           backgroundColor: Colors.red,
           action: SnackBarAction(
@@ -96,7 +96,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Kamu harus memiliki minimum ${minimumCookieBalance} cookie setelah membuka video ini.',
+            'Kamu harus memiliki minimum $minimumCookieBalance cookie setelah membuka video ini.',
           ),
           backgroundColor: Colors.orange,
           action: SnackBarAction(

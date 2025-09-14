@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lunaria/models/user_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
 
 enum AuthStatus {

@@ -4,7 +4,6 @@ import 'package:lunaria/widgets/calendar/header_with_button.dart';
 import 'package:lunaria/screens/calendar/symptoms.dart';
 import 'package:lunaria/providers/calendar_ai_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:lunaria/models/symptom_model.dart';
 
 class SymptomsCard extends StatelessWidget {
   final BuildContext parentContext;

@@ -9,8 +9,7 @@ import '../../services/youtube_video_service.dart';
 class RekomendasiOlahragaScreen extends StatefulWidget {
   final List<String> symptoms;
 
-  const RekomendasiOlahragaScreen({Key? key, required this.symptoms})
-    : super(key: key);
+  const RekomendasiOlahragaScreen({super.key, required this.symptoms});
 
   @override
   State<RekomendasiOlahragaScreen> createState() =>

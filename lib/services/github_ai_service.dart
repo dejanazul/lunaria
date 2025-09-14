@@ -7,7 +7,7 @@ class GitHubAIService {
 
   Future<Map<String, dynamic>> chatCompletion({
     required List<Map<String, dynamic>> messages,
-    String model = 'openai/gpt-5-mini',
+    String model = 'openai/o4-mini',
   }) async {
     final response = await http.post(
       Uri.parse(_baseUrl),

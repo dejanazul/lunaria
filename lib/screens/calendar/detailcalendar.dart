@@ -467,7 +467,7 @@ class _DetailCalendarState extends State<DetailCalendar> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${DateFormat('d MMMM yyyy').format(date)}',
+                  DateFormat('d MMMM yyyy').format(date),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,

@@ -140,7 +140,7 @@ class _MyProfileTypicalDayPageState extends State<MyProfileTypicalDayPage> {
                     minHeight:
                         ResponsiveHelper.isSmallMobile(context) ? 300 : 350,
                   ),
-                  child: Container(
+                  child: SizedBox(
                     // Memberi tinggi maksimal scrollable area
                     height:
                         ResponsiveHelper.isSmallMobile(context)
