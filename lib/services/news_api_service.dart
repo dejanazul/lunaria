@@ -6,7 +6,7 @@ class NewsApiService {
   static const String _apiKey = String.fromEnvironment('NEWS_API_KEY');
   static const String _baseUrl = String.fromEnvironment('NEWS_BASE_URL');
 
-  static Future<Object> fetchArticles({
+  static Future<List<Map<String, dynamic>>> fetchArticles({
     List<String>? keywords,
     int pageSize = 20,
     int page = 1,
@@ -14,7 +14,9 @@ class NewsApiService {
     String? country,
   }) async {
     if (_apiKey.isEmpty) {
-      return Text("There is no Article Available");
+      return [
+        {"message": "There is no Article Available"},
+      ];
     }
 
     try {
@@ -57,10 +59,14 @@ class NewsApiService {
           );
         }
       } else {
-        return Text("There is no Article Available");
+        return [
+          {"message": "There is no Article Available"},
+        ];
       }
     } catch (e) {
-      return Text("There is no Article Available");
+      return [
+        {"message": "There is no Article Available"},
+      ];
     }
   }
 }
