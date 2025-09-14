@@ -241,34 +241,6 @@ class TrainerProfileScreen extends StatelessWidget {
   }
 }
 
-class _BulletText extends StatelessWidget {
-  final String text;
-  const _BulletText(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('• ', style: TextStyle(fontSize: 16, color: Colors.black)),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 Widget _infoCard({
   required String title,
   String? content,

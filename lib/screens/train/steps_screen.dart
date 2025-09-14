@@ -134,7 +134,7 @@ class _StepsScreenState extends State<StepsScreen> {
         pageSize: 3,
       );
       setState(() {
-        articles = fetched.take(3).toList();
+        articles = (fetched as List).take(3).toList();
         loadingArticles = false;
       });
     } catch (e) {

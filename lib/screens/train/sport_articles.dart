@@ -34,7 +34,7 @@ class _SportArticlesScreenState extends State<SportArticlesScreen> {
         pageSize: 20,
       );
       setState(() {
-        _articles = result;
+        _articles = result as List<Map<String, dynamic>>;
         _loading = false;
       });
     } catch (e) {

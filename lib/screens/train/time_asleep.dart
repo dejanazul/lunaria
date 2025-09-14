@@ -30,7 +30,7 @@ class _TimeAsleepScreenState extends State<TimeAsleepScreen> {
         keywords: ['sleep', 'asleep', 'tidur', 'rest', 'insomnia'],
         language: 'en',
         pageSize: 10,
-      );
+      ) as List<Map<String, dynamic>>;
       // Filter out articles with 'sponsored' or 'advertisement' in title/description
       final filtered =
           result.where((a) {

@@ -201,7 +201,7 @@ class _TrainScreenState extends State<TrainScreen>
 
   Widget _sportArticleSection() {
     // --- SPORT ARTICLES SECTION UI & LOGIC ---
-    return FutureBuilder<List<Map<String, dynamic>>>(
+    return FutureBuilder<Object>(
       future: NewsApiService.fetchArticles(
         keywords: ['health', 'sport', 'exercise'],
         pageSize: 3,
@@ -242,7 +242,7 @@ class _TrainScreenState extends State<TrainScreen>
           final articles = snapshot.data ?? [];
           content = Column(
             children: [
-              ...articles.map(
+              ...(articles as List).map(
                 (article) => InkWell(
                   onTap: () {
                     Navigator.push(
