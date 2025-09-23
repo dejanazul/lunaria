@@ -166,6 +166,120 @@ class _TrainScreenState extends State<TrainScreen>
 
                 const SizedBox(height: 24),
 
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Start Moving',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Start moving with guided workout videos designed for your needs. Each session helps improve your health.',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: Colors.grey[300],
+                              thickness: 1,
+                              height: 5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Column(
+                        children: [
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: [
+                                SportIcon(
+                                  label: 'Yoga',
+                                  asset: 'assets/images/trainer_image_1.png',
+                                  tag: 'Yoga',
+                                ),
+                                SizedBox(width: 15),
+                                SportIcon(
+                                  label: 'Dance',
+                                  asset: 'assets/images/trainer_image_2.png',
+                                  tag: 'Dance',
+                                ),
+                                SizedBox(width: 15),
+                                SportIcon(
+                                  label: 'Aerobik',
+                                  asset: 'assets/images/trainer_image_3.png',
+                                  tag: 'Aerobics',
+                                ),
+                                SizedBox(width: 15),
+                                SportIcon(
+                                  label: 'Zumba',
+                                  asset: 'assets/images/trainer_image_4.png',
+                                  tag: 'Zumba',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            child: Row(
+                              children: [
+                                SportIcon(
+                                  label: 'HIIT',
+                                  asset: 'assets/images/trainer_image_5.png',
+                                  tag: 'HIIT',
+                                ),
+                                SizedBox(width: 15),
+                                SportIcon(
+                                  label: 'Pilates',
+                                  asset: 'assets/images/trainer_image_6.png',
+                                  tag: 'Pilates',
+                                ),
+                                SizedBox(width: 15),
+                                SportIcon(
+                                  label: 'Workout',
+                                  asset: 'assets/images/trainer_image_7.png',
+                                  tag: 'Workout',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
                 // Sport Article Section
                 const SportArticleSection(),
 
